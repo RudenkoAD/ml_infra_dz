@@ -1,17 +1,15 @@
-from typing import Optional, Dict, Any, Tuple, Union, List
+from typing import Optional, Dict, Any
 import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer
-from classes import Action, Agent
-from agents.strategies import BaseStrategy, AlwaysStealStrategy, AlwaysSplitStrategy, TitForTatStrategy
+from classes import Action, Agent, HistoryEvent, Event
 
 class LLMAgent(Agent):
     def __init__(
         self,
         model_name: str,
-        strategy: Optional[Union[str, BaseStrategy]] = None,
         device: str = "cuda" if torch.cuda.is_available() else "cpu",
         temperature: float = 0.7,
-        max_new_tokens: int = 300,
+        max_new_tokens: int = 1024,
         group_id: str = "llm_group",
         model: Optional[AutoModelForCausalLM] = None,
         tokenizer: Optional[AutoTokenizer] = None,
@@ -23,44 +21,21 @@ class LLMAgent(Agent):
         self.group_id = group_id
         self.personality = personality
         
-        # Initialize model and tokenizer if using LLM
-        if strategy is None:
-            if model is not None and tokenizer is not None:
-                self.model = model
-                self.tokenizer = tokenizer
-            else:
-                self.tokenizer = AutoTokenizer.from_pretrained(model_name)
-                # Set pad token to eos token without warning
-                self.tokenizer.pad_token = self.tokenizer.eos_token
-                self.tokenizer.pad_token_id = self.tokenizer.eos_token_id
-                self.model = AutoModelForCausalLM.from_pretrained(model_name).to(device)
-                self.model.generation_config.pad_token_id = self.tokenizer.pad_token_id
-            self.strategy = None
+        if model is not None and tokenizer is not None:
+            self.model = model
+            self.tokenizer = tokenizer
         else:
-            self.tokenizer = None
-            self.model = None
-            self.strategy = self._initialize_strategy(strategy)
+            self.tokenizer = AutoTokenizer.from_pretrained(model_name)
+            # Set pad token to eos token without warning
+            self.tokenizer.pad_token = self.tokenizer.eos_token
+            self.tokenizer.pad_token_id = self.tokenizer.eos_token_id
+            self.model = AutoModelForCausalLM.from_pretrained(model_name).to(device)
+            self.model.generation_config.pad_token_id = self.tokenizer.pad_token_id
         
         # Game history
         self.history: list[Dict[str, Any]] = []
         self.group_score: float = 0.0
         self.inner_thoughts: list[str] = []  # Store inner thoughts
-    
-    def _initialize_strategy(self, strategy: Union[str, BaseStrategy]) -> BaseStrategy:
-        """Initialize a strategy based on the given name or strategy object."""
-        if isinstance(strategy, BaseStrategy):
-            return strategy
-        
-        strategy_map = {
-            "always_steal": AlwaysStealStrategy(),
-            "always_split": AlwaysSplitStrategy(),
-            "tit_for_tat": TitForTatStrategy()
-        }
-        
-        if strategy not in strategy_map:
-            raise ValueError(f"Unknown strategy: {strategy}. Available strategies: {list(strategy_map.keys())}")
-        
-        return strategy_map[strategy]
     
     def _get_personality_prompt(self) -> str:
         """Get the personality-specific prompt based on the agent's personality."""
@@ -110,24 +85,11 @@ Your inner thoughts should reveal your true intentions and manipulation plans, w
         
         return base_prompt
     
-    def get_message(self, opponent_history: Optional[list[Dict[str, Any]]] = None) -> str:
+    def get_message(self, communication_history: list[HistoryEvent]) -> str:
         """
         Generate a message to send to the opponent.
-        If using a preset strategy, generate a message based on the strategy.
         """
-        if self.strategy is not None:
-            # Generate strategy-based message
-            if isinstance(self.strategy, AlwaysStealStrategy):
-                return "I will always choose to steal."
-            elif isinstance(self.strategy, AlwaysSplitStrategy):
-                return "I will always choose to split."
-            elif isinstance(self.strategy, TitForTatStrategy):
-                return "I will start by splitting and then match your previous move."
-            else:
-                return "I am using a preset strategy."
-        
-        # Use LLM for message generation
-        prompt = self._construct_communication_prompt(opponent_history)
+        prompt = self._construct_communication_prompt(communication_history)
         
         if self.tokenizer is None:
             raise ValueError("Tokenizer is not initialized.")
@@ -145,16 +107,12 @@ Your inner thoughts should reveal your true intentions and manipulation plans, w
         response = self.tokenizer.decode(outputs[0], skip_special_tokens=True) # type: ignore
         return self._extract_message(response)
     
-    def get_action(self, opponent_history: Optional[list[Dict[str, Any]]] = None, communication_history: Optional[list[Tuple[str, str]]] = None) -> Action:
+    def get_action(self, communication_history: list[HistoryEvent]) -> Action:
         """
         Generate an action based on the game history, opponent's history, and communication.
-        If using a preset strategy, use that instead of the LLM.
         """
-        if self.strategy is not None:
-            return self.strategy.get_action(opponent_history, communication_history)
-        
         # Use LLM for action generation
-        prompt = self._construct_action_prompt(opponent_history, communication_history)
+        prompt = self._construct_action_prompt(communication_history)
         
         inputs = self.tokenizer(prompt, return_tensors="pt", return_token_type_ids=False).to(self.device) # type: ignore
         outputs = self.model.generate( # type: ignore
@@ -168,37 +126,38 @@ Your inner thoughts should reveal your true intentions and manipulation plans, w
         response = self.tokenizer.decode(outputs[0], skip_special_tokens=True) # type: ignore
         return self._parse_response(response)
     
-    def _construct_communication_prompt(self, opponent_history: Optional[list[Dict[str, Any]]] = None) -> str:
+    def _construct_communication_prompt(self, communication_history: list[HistoryEvent]) -> str:
         """Construct the prompt for communication."""
         prompt = self._get_personality_prompt()
         
-        if opponent_history:
-            prompt += "\nPrevious games with this opponent:\n"
-            for game in opponent_history[-5:]:  # Show last 5 games
-                prompt += f"Game {game['game_id']}: {game['result']}\n"
-                if 'communication_history' in game:
-                    prompt += "Communication:\n"
-                    for msg1, msg2 in game['communication_history']:
-                        prompt += f"You: {msg1}\nOpponent: {msg2}\n"
-        
-        prompt += "\nWhat are your thoughts and what message would you like to send to your opponent? Keep your message brief and strategic:"
+        for event in communication_history:
+            if event.type == Event.ACTION and (event.author == self.player_id):
+                prompt += f"\nYou chose: {event.message} (ACTION)"
+            elif event.type == Event.ACTION and (event.author != self.player_id):
+                prompt += f"\nOpponent chose: {event.message} (ACTION)"
+            elif event.type == Event.MESSAGE and (event.author == self.player_id):
+                prompt += f"\nYou said: {event.message} (MESSAGE)"
+            elif event.type == Event.MESSAGE and (event.author != self.player_id):
+                prompt += f"\nOpponent: {event.message} (MESSAGE)"
+        # Add a prompt for the agent's thoughts and message
+        prompt += "\nWhat are your thoughts and what message would you like to send to your opponent? Keep your message brief and strategic."
         return prompt
     
-    def _construct_action_prompt(self, opponent_history: Optional[list[Dict[str, Any]]] = None, communication_history: Optional[list[Tuple[str, str]]] = None) -> str:
+    def _construct_action_prompt(self, communication_history: list[HistoryEvent]) -> str:
         """Construct the prompt for action decision."""
         prompt = self._get_personality_prompt()
         
-        if opponent_history:
-            prompt += "\nPrevious games with this opponent:\n"
-            for game in opponent_history[-5:]:  # Show last 5 games
-                prompt += f"Game {game['game_id']}: {game['result']}\n"
-        
-        if communication_history:
-            prompt += "\nCommunication in this game:\n"
-            for msg1, msg2 in communication_history:
-                prompt += f"You: {msg1}\nOpponent: {msg2}\n"
-        
-        prompt += "\nBased on the communication and history, what are your thoughts and what will you choose (SPLIT or STEAL)?"
+        for event in communication_history:
+            if event.type == Event.ACTION and (event.author == self.player_id):
+                prompt += f"\nYou chose: {event.message} (ACTION)"
+            elif event.type == Event.ACTION and (event.author != self.player_id):
+                prompt += f"\nOpponent chose: {event.message} (ACTION)"
+            elif event.type == Event.MESSAGE and (event.author == self.player_id):
+                prompt += f"\nYou said: {event.message} (MESSAGE)"
+            elif event.type == Event.MESSAGE and (event.author != self.player_id):
+                prompt += f"\nOpponent: {event.message} (MESSAGE)"
+        # Add a prompt for the agent's thoughts and message
+        prompt += "\nBased on the above communication, what action would you like to take? Choose either SPLIT or STEAL. Answer with just the action name (SPLIT or STEAL):"
         return prompt
     
     def _extract_message(self, response: str) -> str:
@@ -232,9 +191,3 @@ Your inner thoughts should reveal your true intentions and manipulation plans, w
         else:
             # Default to SPLIT if unclear
             return Action.SPLIT
-    
-    def update_history(self, game_result: Dict[str, Any]):
-        """Update the agent's game history and group score."""
-        self.history.append(game_result)
-        if 'rewards' in game_result:
-            self.group_score += game_result['rewards'][0]  # Add player's reward to group score 

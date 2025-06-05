@@ -3,7 +3,9 @@ import random
 from environment import Action, SplitOrStealEnv
 from agents.llm_agent import LLMAgent
 from agents.rl_agent import RLAgent
-from classes import GameResult
+from classes import GameResult, Player
+import logging
+log = logging.getLogger(__name__)
 
 class AgentGroup:
     def __init__(self, group_id: str, agents: List[Union[LLMAgent, RLAgent]]):
@@ -27,6 +29,7 @@ class GroupManager:
     def create_group(self, group_id: str, agents: List):
         """Create a new group of agents."""
         self.groups[group_id] = agents
+        log.info(f"Group {group_id} created")
     
     def play_self_play(self, group_id: str, num_games: int = 10, num_rounds: int = 3) -> float:
         """Play games between agents in the same group."""
@@ -39,11 +42,15 @@ class GroupManager:
         for _ in range(num_games):
             # Randomly select two different agents from the group
             agent1, agent2 = random.sample(agents, 2)
-            
+            agent1.player_id = Player.AGENT_1
+            agent2.player_id = Player.AGENT_2
             # Play a game with multiple rounds
             game_result = self.env.play_duel(agent1, agent2, num_rounds)
             total_score += game_result.total_rewards[0]  # Use first agent's total reward
-        
+            # log the game result including communication history
+            agent1.group_score += game_result.total_rewards[0]
+            agent2.group_score += game_result.total_rewards[1]
+            log.info(f"Game between {group_id}, {group_id}\nGame Result: {game_result.total_rewards}\nCommunication History: {game_result.communication_history}")
         return total_score / num_games
     
     def play_group_vs_group(self, group1_id: str, group2_id: str, num_games: int = 10, num_rounds: int = 3) -> Tuple[float, float]:
@@ -65,7 +72,8 @@ class GroupManager:
             game_result = self.env.play_duel(agent1, agent2, num_rounds)
             total_score1 += game_result.total_rewards[0]  # First agent's total reward
             total_score2 += game_result.total_rewards[1]  # Second agent's total reward
-        
+            
+            log.info(f"Game between {group1_id}, {group2_id}\nGame Result: {game_result.total_rewards}\nCommunication History: {game_result.communication_history}")
         return total_score1 / num_games, total_score2 / num_games
     
     def get_group_rankings(self) -> List[Tuple[str, float]]:

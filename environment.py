@@ -1,15 +1,18 @@
+from operator import is_
 from typing import Tuple, Optional
 import random
-from classes import Action, GameState, RoundResult, GameResult, Agent
+from classes import Action, Event, GameState, HistoryEvent, Player, RoundResult, GameResult, Agent
+import logging
+
+log = logging.getLogger(__name__)
 
 class SplitOrStealEnv:
     def __init__(self):
         self.state = GameState(
             communication_history=[],
             current_turn=0,
-            max_turns=3,
+            max_turns=4,
             game_id=0,
-            done=False,
             round_number=0,
             total_rounds=1
         )
@@ -27,13 +30,12 @@ class SplitOrStealEnv:
             current_turn=0,
             max_turns=3,
             game_id=random.randint(0, 1000000),
-            done=False,
             round_number=0,
             total_rounds=total_rounds
         )
         return self.state
     
-    def step(self, action1: Action, action2: Action) -> Tuple[Tuple[float, float], bool, RoundResult]:
+    def step(self, action1: Action, action2: Action) -> RoundResult:
         """Execute one step of the game."""
         # Get rewards based on actions
         rewards = self.reward_matrix[(action1, action2)]
@@ -51,26 +53,36 @@ class SplitOrStealEnv:
         # Increment round number
         self.state.round_number += 1
         
-        # Check if game is done
-        self.state.done = self.state.round_number >= self.state.total_rounds
-        
-        return rewards, self.state.done, round_result
+        return round_result
     
-    def add_communication(self, message1: str, message2: Optional[str] = None) -> None:
-        """Add communication messages to the game state."""
-        if message2 is None:
-            self.state.communication_history.append((message1, ""))
-        else:
-            if len(self.state.communication_history) > 0 and self.state.communication_history[-1][1] is None:
-                self.state.communication_history[-1] = (message1, message2)
-            else:
-                self.state.communication_history.append((message1, message2))
-        
+    def add_communication(self, author: Player, message: str):
+        """Add a communication message to the game state."""
+        self.state.communication_history.append(
+            HistoryEvent(
+                type=Event.MESSAGE,
+                message=message,
+                author=author,
+            )
+        )
         self.state.current_turn += 1
-    
-    def is_done(self) -> bool:
+
+    def add_action(self, author: Player, action: Action):
+        """Add an action to the game state."""
+        self.state.communication_history.append(
+            HistoryEvent(
+                type=Event.ACTION,
+                author=author,
+                action=action
+            )
+        )
+
+    def is_communication(self) -> bool:
         """Check if the game is done."""
-        return self.state.done or self.state.current_turn >= self.state.max_turns
+        return self.state.current_turn < self.state.max_turns
+    
+    def is_playing(self) -> bool:
+        """Check if the game is done."""
+        return self.state.round_number < self.state.total_rounds
     
     def get_state(self) -> GameState:
         """Get the current game state."""
@@ -93,57 +105,55 @@ class SplitOrStealEnv:
         
         # Randomly decide who goes first
         first_agent, second_agent = (agent1, agent2) if random.random() < 0.5 else (agent2, agent1)
+        first_agent.player_id = Player.AGENT_1
+        second_agent.player_id = Player.AGENT_2
         
         rounds = []
         total_rewards = [0.0, 0.0]
         
         # Play multiple rounds
-        while not self.state.done:
+        while self.is_playing():
+            log.info(f"Starting round {self.state.round_number + 1} of {self.state.total_rounds}")
+            # Increment round number
+            self.state.round_number += 1
             # Reset communication for new round
-            self.state.communication_history = []
             self.state.current_turn = 0
             
             # Communication phase
-            while not self.is_done():
+            while self.is_communication():
                 # First agent's message
-                message1 = first_agent.get_message(second_agent.history)
-                self.add_communication(message1)
+                message1 = first_agent.get_message(self.state.communication_history)
+                self.add_communication(first_agent.player_id, message1)
                 
                 # Second agent's message
-                message2 = second_agent.get_message(first_agent.history)
-                self.add_communication(message1, message2)
+                message2 = second_agent.get_message(self.state.communication_history)
+                self.add_communication(second_agent.player_id, message2)
             
             # Action phase
-            action1 = first_agent.get_action(first_agent.history, self.state.communication_history)
-            action2 = second_agent.get_action(second_agent.history, self.state.communication_history)
+            action1 = first_agent.get_action(self.state.communication_history)
+            action2 = second_agent.get_action(self.state.communication_history)
+            
+            self.add_action(first_agent.player_id, action1)
+            self.add_action(second_agent.player_id, action2)
             
             # Get round results
-            rewards, done, round_result = self.step(action1, action2)
+            round_result = self.step(action1, action2)
             
             # Update total rewards
-            total_rewards[0] += rewards[0]
-            total_rewards[1] += rewards[1]
+            total_rewards[0] += round_result.rewards[0]
+            total_rewards[1] += round_result.rewards[1]
             
             # Store round info
             rounds.append(round_result)
             
-            # Update agent histories
-            game_result = {
-                'game_id': round_result.game_id,
-                'round': round_result.round,
-                'opponent': second_agent.group_id,
-                'actions': round_result.actions,
-                'rewards': round_result.rewards,
-                'result': round_result.result,
-                'communication_history': round_result.communication_history
-            }
-            first_agent.update_history(game_result)
-            second_agent.update_history(game_result)
+            log.info(f"Round {self.state.round_number} results: {round_result} history: {self.state.communication_history}")
         
         # Return final game results
         return GameResult(
             game_id=self.state.game_id,
             rounds=rounds,
+            group_1_id=agent1.group_id,
+            group_2_id=agent2.group_id,
             total_rewards=(total_rewards[0], total_rewards[1]),
             communication_history=self.state.communication_history.copy()
         )
