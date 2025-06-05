@@ -1,0 +1,15 @@
+{"time":"2025-06-05T17:47:16.9574684+03:00","level":"INFO","msg":"stream: starting","core version":"0.19.11","symlink path":"/home/grimm/Documents/Projects/Python/ml_infra_dz/wandb/run-20250605_174716-c3xm1vm7/logs/debug-core.log"}
+{"time":"2025-06-05T17:47:17.347985004+03:00","level":"INFO","msg":"created new stream","id":"c3xm1vm7"}
+{"time":"2025-06-05T17:47:17.34802928+03:00","level":"INFO","msg":"stream: started","id":"c3xm1vm7"}
+{"time":"2025-06-05T17:47:17.348096531+03:00","level":"INFO","msg":"writer: Do: started","stream_id":"c3xm1vm7"}
+{"time":"2025-06-05T17:47:17.348110498+03:00","level":"INFO","msg":"handler: started","stream_id":"c3xm1vm7"}
+{"time":"2025-06-05T17:47:17.348166995+03:00","level":"INFO","msg":"sender: started","stream_id":"c3xm1vm7"}
+{"time":"2025-06-05T17:47:17.645698723+03:00","level":"INFO","msg":"Starting system monitor"}
+{"time":"2025-06-05T17:47:17.758420201+03:00","level":"INFO","msg":"stream: closing","id":"c3xm1vm7"}
+{"time":"2025-06-05T17:47:17.75846301+03:00","level":"INFO","msg":"Stopping system monitor"}
+{"time":"2025-06-05T17:47:17.758490665+03:00","level":"INFO","msg":"Stopped system monitor"}
+{"time":"2025-06-05T17:47:19.599295619+03:00","level":"INFO","msg":"fileTransfer: Close: file transfer manager closed"}
+{"time":"2025-06-05T17:47:19.92211392+03:00","level":"INFO","msg":"handler: closed","stream_id":"c3xm1vm7"}
+{"time":"2025-06-05T17:47:19.922166995+03:00","level":"INFO","msg":"writer: Close: closed","stream_id":"c3xm1vm7"}
+{"time":"2025-06-05T17:47:19.922198421+03:00","level":"INFO","msg":"sender: closed","stream_id":"c3xm1vm7"}
+{"time":"2025-06-05T17:47:19.922341025+03:00","level":"INFO","msg":"stream: closed","id":"c3xm1vm7"}

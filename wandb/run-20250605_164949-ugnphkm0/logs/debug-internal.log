@@ -1,0 +1,10 @@
+{"time":"2025-06-05T16:49:49.672919409+03:00","level":"INFO","msg":"stream: starting","core version":"0.19.11","symlink path":"/home/grimm/Documents/Projects/Python/ml_infra_dz/wandb/run-20250605_164949-ugnphkm0/logs/debug-core.log"}
+{"time":"2025-06-05T16:49:50.002502931+03:00","level":"INFO","msg":"created new stream","id":"ugnphkm0"}
+{"time":"2025-06-05T16:49:50.002567744+03:00","level":"INFO","msg":"stream: started","id":"ugnphkm0"}
+{"time":"2025-06-05T16:49:50.002665033+03:00","level":"INFO","msg":"handler: started","stream_id":"ugnphkm0"}
+{"time":"2025-06-05T16:49:50.002847389+03:00","level":"INFO","msg":"sender: started","stream_id":"ugnphkm0"}
+{"time":"2025-06-05T16:49:50.002945656+03:00","level":"INFO","msg":"writer: Do: started","stream_id":"ugnphkm0"}
+{"time":"2025-06-05T16:49:50.28413563+03:00","level":"INFO","msg":"Starting system monitor"}
+{"time":"2025-06-05T16:52:38.654763873+03:00","level":"INFO","msg":"stream: closing","id":"ugnphkm0"}
+{"time":"2025-06-05T16:52:38.654848312+03:00","level":"INFO","msg":"Stopping system monitor"}
+{"time":"2025-06-05T16:52:38.654990928+03:00","level":"INFO","msg":"Stopped system monitor"}

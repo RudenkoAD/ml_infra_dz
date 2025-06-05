@@ -1,0 +1,7 @@
+{"time":"2025-06-05T18:29:41.245642532+03:00","level":"INFO","msg":"stream: starting","core version":"0.19.11","symlink path":"/home/grimm/Documents/Projects/Python/ml_infra_dz/wandb/run-20250605_182941-1q2uxkjv/logs/debug-core.log"}
+{"time":"2025-06-05T18:29:42.134227243+03:00","level":"INFO","msg":"created new stream","id":"1q2uxkjv"}
+{"time":"2025-06-05T18:29:42.134295969+03:00","level":"INFO","msg":"stream: started","id":"1q2uxkjv"}
+{"time":"2025-06-05T18:29:42.134399058+03:00","level":"INFO","msg":"handler: started","stream_id":"1q2uxkjv"}
+{"time":"2025-06-05T18:29:42.134532459+03:00","level":"INFO","msg":"sender: started","stream_id":"1q2uxkjv"}
+{"time":"2025-06-05T18:29:42.134637782+03:00","level":"INFO","msg":"writer: Do: started","stream_id":"1q2uxkjv"}
+{"time":"2025-06-05T18:29:42.5191095+03:00","level":"INFO","msg":"Starting system monitor"}

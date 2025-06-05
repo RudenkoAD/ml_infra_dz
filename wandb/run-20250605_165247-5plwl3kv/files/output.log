@@ -1,0 +1,62 @@
+Training rounds:   0%|                                                                                               | 0/10 [00:00<?, ?it/s]Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+
+Starting round 1/10
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.                                                   | 0/3 [00:00<?, ?it/s]
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Self-play games:   0%|                                                                                                | 0/3 [00:35<?, ?it/s]
+Training rounds:   0%|                                                                                               | 0/10 [00:35<?, ?it/s]
+Traceback (most recent call last):
+  File "/home/grimm/Documents/Projects/Python/ml_infra_dz/main.py", line 132, in <module>
+    main()
+  File "/home/grimm/Documents/Projects/Python/ml_infra_dz/main.py", line 120, in main
+    train_round(group_manager, round_num)
+  File "/home/grimm/Documents/Projects/Python/ml_infra_dz/main.py", line 69, in train_round
+    self_play_score = group_manager.play_self_play(group_id, num_games=10)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/grimm/Documents/Projects/Python/ml_infra_dz/group_manager.py", line 44, in play_self_play
+    info = self.env.play_round(agent1, agent2)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/grimm/Documents/Projects/Python/ml_infra_dz/environment.py", line 104, in play_round
+    message2 = second_agent.get_message(first_agent.history)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/grimm/Documents/Projects/Python/ml_infra_dz/agents/llm_agent.py", line 133, in get_message
+    outputs = self.model.generate(
+              ^^^^^^^^^^^^^^^^^^^^
+  File "/home/grimm/Documents/Projects/Python/ml_infra_dz/.venv/lib/python3.12/site-packages/torch/utils/_contextlib.py", line 116, in decorate_context
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/grimm/Documents/Projects/Python/ml_infra_dz/.venv/lib/python3.12/site-packages/transformers/generation/utils.py", line 2597, in generate
+    result = self._sample(
+             ^^^^^^^^^^^^^
+  File "/home/grimm/Documents/Projects/Python/ml_infra_dz/.venv/lib/python3.12/site-packages/transformers/generation/utils.py", line 3560, in _sample
+    outputs = model_forward(**model_inputs, return_dict=True)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/grimm/Documents/Projects/Python/ml_infra_dz/.venv/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1751, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/grimm/Documents/Projects/Python/ml_infra_dz/.venv/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1762, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/grimm/Documents/Projects/Python/ml_infra_dz/.venv/lib/python3.12/site-packages/transformers/utils/generic.py", line 969, in wrapper
+    output = func(self, *args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/grimm/Documents/Projects/Python/ml_infra_dz/.venv/lib/python3.12/site-packages/transformers/models/mistral/modeling_mistral.py", line 706, in forward
+    logits = self.lm_head(hidden_states[:, slice_indices, :])
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/grimm/Documents/Projects/Python/ml_infra_dz/.venv/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1751, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/grimm/Documents/Projects/Python/ml_infra_dz/.venv/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1762, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/grimm/Documents/Projects/Python/ml_infra_dz/.venv/lib/python3.12/site-packages/torch/nn/modules/linear.py", line 125, in forward
+    return F.linear(input, self.weight, self.bias)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+KeyboardInterrupt
