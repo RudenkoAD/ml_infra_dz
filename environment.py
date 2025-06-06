@@ -3,6 +3,7 @@ from typing import Tuple, Optional
 import random
 
 from wandb import agent
+import wandb
 from classes import Action, Event, GameState, HistoryEvent, RoundResult, GameResult
 from agents.llm_agent import LLMAgent
 import logging
@@ -36,6 +37,7 @@ class SplitOrStealEnv:
             round_number=0,
             total_rounds=total_rounds
         )
+        wandb.log({"game_id": self.state.game_id, "total_rounds": total_rounds})
         return self.state
     
     def step(self, action1: Action, action2: Action) -> RoundResult:
@@ -92,27 +94,11 @@ class SplitOrStealEnv:
         return self.state
     
     def play_duel(self, agent1: LLMAgent, agent2: LLMAgent, num_rounds: int = 1) -> GameResult:
-        """
-        Play multiple rounds between two agents, including communication and action phases.
-        
-        Args:
-            agent1: First agent
-            agent2: Second agent
-            num_rounds: Number of rounds to play between the agents
-            
-        Returns:
-            GameResult containing game results
-        """
-        # Reset environment for new game
+        """Play multiple rounds between two agents."""
         self.reset(num_rounds)
-        
-        # Randomly decide who goes first
         first_agent, second_agent = (agent1, agent2) if random.random() < 0.5 else (agent2, agent1)
-        
         rounds = []
         total_rewards = [0.0, 0.0]
-        
-        # Play multiple rounds
         while self.is_playing():
             log.info("-------------------------------")
             log.info(f"Starting round {self.state.round_number + 1} of {self.state.total_rounds}")
@@ -121,11 +107,9 @@ class SplitOrStealEnv:
             
             # Communication phase
             while self.is_communication():
-                # First agent's message
                 message1 = first_agent.get_message(self.state)
                 self.add_communication(first_agent.player_id, message1)
                 log.info(f"{first_agent.player_id} sent message: {message1}")
-                # Second agent's message
                 message2 = second_agent.get_message(self.state)
                 self.add_communication(second_agent.player_id, message2)
                 log.info(f"{second_agent.player_id} sent message: {message2}")
@@ -138,20 +122,19 @@ class SplitOrStealEnv:
             
             self.add_action(first_agent.player_id, action1)
             self.add_action(second_agent.player_id, action2)
-            
-            # Get round results
             round_result = self.step(action1, action2)
-            
-            # Update total rewards
             total_rewards[0] += round_result.rewards[0]
             total_rewards[1] += round_result.rewards[1]
-            
-            # Store round info
             rounds.append(round_result)
             
             log.info(f"Round {self.state.round_number} results: {round_result} history: {self.state.communication_history}")
         log.info(f"Game {self.state.game_id} completed with total rewards: {total_rewards}")
-        # Return final game results
+        wandb.log({
+            "game_id": self.state.game_id,
+            "agent_1_id": agent1.player_id,
+            "agent_2_id": agent2.player_id,
+            "total_rewards": total_rewards
+        })
         return GameResult(
             game_id=self.state.game_id,
             rounds=rounds,

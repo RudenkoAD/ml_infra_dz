@@ -4,6 +4,8 @@ from re import A
 from openai import OpenAI
 from typing import Optional, Dict, Any
 from abc import ABC, abstractmethod
+
+import wandb
 from classes import Action, GameState, HistoryEvent, Event
 from agents.prompts import PromptManager, Personality
 from logging import getLogger
@@ -54,34 +56,30 @@ class LLMAgent:
             raise ValueError("Failed to get a valid response from the provider.")
     
     def get_message(self, state: GameState) -> str:
-        """
-        Generate a message to send to the opponent.
-        """
+        """Generate a message to send to the opponent."""
         prompt = PromptManager.construct_prompt(
             personality=self.personality,
             player_id=self.player_id,
             state=state,
             is_action=False
         )
-        log.debug(f"Prompt: '{prompt}'")
         response = self.query(prompt)
-        log.debug(f"Response: '{response}'")
-        return self._extract_message(response)
+        message = self._extract_message(response)
+        wandb.log({"agent_id": self.player_id, "message": message})
+        return message
     
     def get_action(self, state: GameState) -> Action:
-        """
-        Generate an action based on the game history, opponent's history, and communication.
-        """
+        """Generate an action based on the game history."""
         prompt = PromptManager.construct_prompt(
             personality=self.personality,
             player_id=self.player_id,
             state=state,
             is_action=True
         )
-        log.debug(f"Prompt: '{prompt}'")
         response = self.query(prompt)
-        log.debug(f"Response: '{response}'")
-        return self._parse_response(response)
+        action = self._parse_response(response)
+        wandb.log({"agent_id": self.player_id, "action": action.value})
+        return action
 
     def clone(self) -> LLMAgent:
         """
