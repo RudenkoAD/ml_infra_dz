@@ -1,7 +1,10 @@
 from operator import is_
 from typing import Tuple, Optional
 import random
-from classes import Action, Event, GameState, HistoryEvent, Player, RoundResult, GameResult, Agent
+
+from wandb import agent
+from classes import Action, Event, GameState, HistoryEvent, RoundResult, GameResult
+from agents.base_agent import Agent
 import logging
 
 log = logging.getLogger(__name__)
@@ -55,7 +58,7 @@ class SplitOrStealEnv:
         
         return round_result
     
-    def add_communication(self, author: Player, message: str):
+    def add_communication(self, author: str, message: str):
         """Add a communication message to the game state."""
         self.state.communication_history.append(
             HistoryEvent(
@@ -66,7 +69,7 @@ class SplitOrStealEnv:
         )
         self.state.current_turn += 1
 
-    def add_action(self, author: Player, action: Action):
+    def add_action(self, author: str, action: Action):
         """Add an action to the game state."""
         self.state.communication_history.append(
             HistoryEvent(
@@ -105,8 +108,6 @@ class SplitOrStealEnv:
         
         # Randomly decide who goes first
         first_agent, second_agent = (agent1, agent2) if random.random() < 0.5 else (agent2, agent1)
-        first_agent.player_id = Player.AGENT_1
-        second_agent.player_id = Player.AGENT_2
         
         rounds = []
         total_rewards = [0.0, 0.0]
@@ -152,8 +153,8 @@ class SplitOrStealEnv:
         return GameResult(
             game_id=self.state.game_id,
             rounds=rounds,
-            group_1_id=agent1.group_id,
-            group_2_id=agent2.group_id,
+            agent_1_id=agent1.player_id,
+            agent_2_id=agent2.player_id,
             total_rewards=(total_rewards[0], total_rewards[1]),
             communication_history=self.state.communication_history.copy()
         )
