@@ -71,18 +71,36 @@ def main():
     env.reset(total_rounds=config["num_rounds"])
     log.info("Environment initialized with total rounds: %d", config["num_rounds"])
 
-    # play games
-    result = game.simulate_games(
-        env=env,
-        agents=agents,
-        num_rounds=config["num_rounds"]
-    )
-    game.evolve_agents(
-        agents=agents,
-        scores=result,
-        a=config["evolution_factor"]
-    )
-    
+    for _ in tqdm(range(config["num_games"])):
+        # Reset environment for each game
+        env.reset(total_rounds=config["num_rounds"])
+        
+        # Simulate games
+        result = game.simulate_games(
+            env=env,
+            agents=agents,
+            num_rounds=config["num_rounds"]
+        )
+        
+        # Log results
+        wandb.log({"game_results": result})
+        
+        # Log agent performance
+        for agent in agents:
+            performance = {
+                "player_id": agent.player_id,
+                "score": result[agent.player_id],
+                "personality": agent.personality.name
+            }
+            log_agent_performance(agent.player_id, performance, config["log_directory"])
+
+        # Evolve agents based on scores
+        agents = game.evolve_agents(
+            agents=agents,
+            scores=result,
+            a=config["evolution_factor"]
+        )
+        
     # Close wandb
     wandb.finish()
 

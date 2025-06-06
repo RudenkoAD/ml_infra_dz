@@ -45,8 +45,8 @@ class RoundResult:
 class GameResult:
     game_id: int
     rounds: List[RoundResult]
-    agent_1_id: str
-    agent_2_id: str
+    first_agent_id: str
+    second_agent_id: str
     total_rewards: Tuple[float, float]
     communication_history: list[HistoryEvent]
 

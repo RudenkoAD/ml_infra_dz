@@ -1,5 +1,3 @@
-from enum import Enum
-
 from classes import Event, GameState, HistoryEvent, Personality
 
 
@@ -28,9 +26,11 @@ class PromptManager:
         prompt = "\nThe game history is as follows:"
         for event in communication_history:
             if event.type == Event.ACTION and (event.author == player_id):
-                prompt += f"\nYou chose: {event.message}"
+                assert event.action is not None, "Action event must have an action"
+                prompt += f"\nYou chose: {event.action.value}"
             elif event.type == Event.ACTION and (event.author != player_id):
-                prompt += f"\nOpponent chose: {event.message}"
+                assert event.action is not None, "Action event must have an action"
+                prompt += f"\nOpponent chose: {event.action.value}"
             elif event.type == Event.MESSAGE and (event.author == player_id):
                 prompt += f"\nYou said: {event.message}"
             elif event.type == Event.MESSAGE and (event.author != player_id):

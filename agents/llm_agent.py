@@ -1,15 +1,10 @@
 from __future__ import annotations
-from dataclasses import dataclass
-from re import A
-from openai import OpenAI
-from typing import Optional, Dict, Any
-from abc import ABC, abstractmethod
+import random
 
-import wandb
-from classes import Action, GameState, HistoryEvent, Event
+from torch import rand
+from classes import Action, GameState
 from agents.prompts import PromptManager, Personality
 from logging import getLogger
-
 from models.providers.base_provider import Provider
 
 log = getLogger(__name__)
@@ -41,8 +36,8 @@ class LLMAgent:
         elif "steal" in response:
             return Action.STEAL
         else:
-            log.error(f"Invalid action response: '{response}'")
-            raise ValueError("Invalid action response from provider.")
+            log.warning(f"Invalid action response: '{response}'")
+            raise ValueError(f"Invalid action response: '{response}'. Expected 'SPLIT' or 'STEAL'.")
         
 
     def query(self, prompt: str) -> str:
@@ -57,36 +52,47 @@ class LLMAgent:
     
     def get_message(self, state: GameState) -> str:
         """Generate a message to send to the opponent."""
-        prompt = PromptManager.construct_prompt(
-            personality=self.personality,
-            player_id=self.player_id,
-            state=state,
-            is_action=False
-        )
-        response = self.query(prompt)
-        message = self._extract_message(response)
-        wandb.log({"agent_id": self.player_id, "message": message})
-        return message
-    
+        while True:
+            try:
+                # Construct the prompt for communication
+                prompt = PromptManager.construct_prompt(
+                    personality=self.personality,
+                    player_id=self.player_id,
+                    state=state,
+                    is_action=False
+                )
+                response = self.query(prompt)
+                message = self._extract_message(response)
+            except ValueError as e:
+                # retry on error
+                log.warning(f"Retrying message query due to error: {e}")
+                continue
+            return message
+
     def get_action(self, state: GameState) -> Action:
         """Generate an action based on the game history."""
-        prompt = PromptManager.construct_prompt(
-            personality=self.personality,
-            player_id=self.player_id,
-            state=state,
-            is_action=True
-        )
-        response = self.query(prompt)
-        action = self._parse_response(response)
-        wandb.log({"agent_id": self.player_id, "action": action.value})
-        return action
+        while True:
+            try:
+                prompt = PromptManager.construct_prompt(
+                    personality=self.personality,
+                    player_id=self.player_id,
+                    state=state,
+                    is_action=True
+                )
+                response = self.query(prompt)
+                action = self._parse_response(response)
+            except ValueError as e:
+                #retry
+                log.warning(f"Retrying action query due to error: {e}")
+                continue
+            return action
 
     def clone(self) -> LLMAgent:
         """
         Create a clone of the agent with the same player ID and personality.
         """
         return LLMAgent(
-            player_id=self.player_id,
+            player_id=self.player_id + random.randint(1, 10000).__str__(),
             provider=self.provider,
             personality=self.personality
         )

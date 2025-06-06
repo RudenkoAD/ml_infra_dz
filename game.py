@@ -1,7 +1,5 @@
-import random
 from typing import List, Tuple
 import wandb
-from numpy import average
 from agents.llm_agent import LLMAgent
 from environment import SplitOrStealEnv
 from classes import Personality
@@ -17,7 +15,7 @@ def create_agents(provider: Provider, agent_personalities: list[Personality], ag
         agent = LLMAgent(
             player_id=agent_names[i],
             provider=provider,
-            personality=agent_personalities[i]
+            personality=Personality(agent_personalities[i])
         )
         agents.append(agent)
     log.info(f"Created {len(agents)} agents with personalities: {[agent.personality for agent in agents]}")
@@ -26,16 +24,11 @@ def create_agents(provider: Provider, agent_personalities: list[Personality], ag
 def simulate_games(env: SplitOrStealEnv, agents: List[LLMAgent], num_rounds: int = 3) -> dict[str, float]:
     """Simulate games between all agents."""
     scores = {agent.player_id: 0.0 for agent in agents}
-    results = [[0.0 for _ in agents] for _ in agents]
     for i, agent1 in enumerate(agents):
         for j, agent2 in enumerate(agents[i+1:]):
             game_result = env.play_duel(agent1, agent2, num_rounds)
-            scores[agent1.player_id] += game_result.total_rewards[0]
-            scores[agent2.player_id] += game_result.total_rewards[1]
-            results[i][i+1+j] += game_result.total_rewards[0]
-            results[i+1+j][i] += game_result.total_rewards[1]
-    wandb.log({"game_results": results})
-    wandb.log({"round_scores": scores})
+            scores[game_result.first_agent_id] += game_result.total_rewards[0]
+            scores[game_result.second_agent_id] += game_result.total_rewards[1]
     return scores
 
 def evolve_agents(agents: List, scores: dict[str, float], a: int) -> List:

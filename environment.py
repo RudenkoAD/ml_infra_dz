@@ -27,17 +27,16 @@ class SplitOrStealEnv:
             (Action.STEAL, Action.STEAL): (0, 0)
         }
     
-    def reset(self, total_rounds: int = 1) -> GameState:
+    def reset(self, total_rounds: int = 1, max_turns: int = 3) -> GameState:
         """Reset the environment for a new game."""
         self.state = GameState(
             communication_history=[],
             current_turn=0,
-            max_turns=3,
+            max_turns=max_turns,
             game_id=random.randint(0, 1000000),
             round_number=0,
             total_rounds=total_rounds
         )
-        wandb.log({"game_id": self.state.game_id, "total_rounds": total_rounds})
         return self.state
     
     def step(self, action1: Action, action2: Action) -> RoundResult:
@@ -57,7 +56,6 @@ class SplitOrStealEnv:
         
         # Increment round number
         self.state.round_number += 1
-        
         return round_result
     
     def add_communication(self, author: str, message: str):
@@ -129,17 +127,11 @@ class SplitOrStealEnv:
             
             log.info(f"Round {self.state.round_number} results: {round_result} history: {self.state.communication_history}")
         log.info(f"Game {self.state.game_id} completed with total rewards: {total_rewards}")
-        wandb.log({
-            "game_id": self.state.game_id,
-            "agent_1_id": agent1.player_id,
-            "agent_2_id": agent2.player_id,
-            "total_rewards": total_rewards
-        })
         return GameResult(
             game_id=self.state.game_id,
             rounds=rounds,
-            agent_1_id=agent1.player_id,
-            agent_2_id=agent2.player_id,
+            first_agent_id=agent1.player_id,
+            second_agent_id=agent2.player_id,
             total_rewards=(total_rewards[0], total_rewards[1]),
             communication_history=self.state.communication_history.copy()
         )
