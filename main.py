@@ -29,7 +29,9 @@ def main():
     if not os.path.exists(f"experiments/{config['experiment_name']}"):
         os.makedirs(f"experiments/{config['experiment_name']}")
     with open(f"experiments/{config['experiment_name']}/config.json", "w") as f:
-        json.dump(config, f, indent=4)
+        new_config = config.copy()
+        new_config["api_key"] = ""
+        json.dump(new_config, f, indent=4)
     
     logging.basicConfig(filename=f"experiments/{config["experiment_name"]}/{config["experiment_name"]}.log", level=config.get("log_level", logging.INFO))
     
