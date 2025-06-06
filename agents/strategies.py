@@ -1,9 +1,10 @@
+from abc import ABC, abstractmethod
 from typing import Optional, List, Tuple
 from classes import Action
 
-class BaseStrategy:
+class BaseStrategy(ABC):
     """Base class for all strategies."""
-    name = "base"
+    @abstractmethod
     def get_action(self, opponent_history: Optional[List[dict]] = None, communication_history: Optional[List[Tuple[str, str]]] = None) -> Action:
         raise NotImplementedError
 

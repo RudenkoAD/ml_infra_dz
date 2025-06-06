@@ -4,7 +4,7 @@ import random
 
 from wandb import agent
 from classes import Action, Event, GameState, HistoryEvent, RoundResult, GameResult
-from agents.base_agent import Agent
+from agents.llm_agent import LLMAgent
 import logging
 
 log = logging.getLogger(__name__)
@@ -91,7 +91,7 @@ class SplitOrStealEnv:
         """Get the current game state."""
         return self.state
     
-    def play_duel(self, agent1: Agent, agent2: Agent, num_rounds: int = 1) -> GameResult:
+    def play_duel(self, agent1: LLMAgent, agent2: LLMAgent, num_rounds: int = 1) -> GameResult:
         """
         Play multiple rounds between two agents, including communication and action phases.
         

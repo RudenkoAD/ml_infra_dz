@@ -7,9 +7,8 @@ from transformers import AutoModelForCausalLM, AutoTokenizer
 import wandb
 from tqdm import tqdm
 import game
-from agents.llm_agent import LLMAgent
-from agents.hf_agent import HFAgent
 from environment import SplitOrStealEnv
+from models.provider_finder import get_provider
 
 import logging
 logging.basicConfig(filename=f'myapp.log', level=logging.DEBUG)
@@ -52,11 +51,18 @@ def main():
     # Load configuration
     config = load_config("config.json")
     
+    # create provider
+    provider = get_provider(
+        provider=config["provider"],
+        api_key=config["api_key"],
+        model_name=config["model_name"]
+    )
+    
     #create agents
     agents = game.create_agents(
-        num_agents=config["num_agents"],
-        model_name=config["model_name"],
-        agent_personalities=config["agent_personalities"]
+        provider=provider,
+        agent_personalities=config["agent_personalities"],
+        agent_names=config["agent_names"]
     )
     
     # Initialize environment

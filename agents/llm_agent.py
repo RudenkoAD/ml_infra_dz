@@ -1,49 +1,101 @@
+from dataclasses import dataclass
+from re import A
+from openai import OpenAI
 from typing import Optional, Dict, Any
-from urllib import response
-import torch
-from transformers import AutoModelForCausalLM, AutoTokenizer
-from agents.prompts import Personality, PromptManager
-from agents.base_agent import Agent
-import logging
-log = logging.getLogger(__name__)
-class LLMAgent(Agent):
+from abc import ABC, abstractmethod
+from classes import Action, HistoryEvent, Event
+from agents.prompts import PromptManager, Personality
+from logging import getLogger
+
+from models.providers.base_provider import Provider
+
+log = getLogger(__name__)
+
+class LLMAgent:
+    player_id: str
+    personality: Personality = Personality.TRUSTING
+
     def __init__(
         self,
-        model_name: str,
-        device: str = "cuda" if torch.cuda.is_available() else "cpu",
-        temperature: float = 0.7,
-        max_new_tokens: int = 1024,
-        group_id: str = "llm_group",
-        personality: Personality = Personality.TRUSTING,
-        model: Optional[AutoModelForCausalLM] = None,
-        tokenizer: Optional[AutoTokenizer] = None,
+        player_id: str,
+        provider: Provider,
+        personality: Personality = Personality.TRUSTING
     ):
-        self.device = device
-        self.temperature = temperature
-        self.max_new_tokens = max_new_tokens
-        self.group_id = group_id
+        self.player_id = player_id
+        self.provider = provider
         self.personality = personality
-        
-        if model is not None and tokenizer is not None:
-            self.model = model
-            self.tokenizer = tokenizer
-        else:
-            self.tokenizer = AutoTokenizer.from_pretrained(model_name)
-            self.tokenizer.pad_token = self.tokenizer.eos_token
-            self.tokenizer.pad_token_id = self.tokenizer.eos_token_id
-            self.model = AutoModelForCausalLM.from_pretrained(model_name).to(device)
-            self.model.generation_config.pad_token_id = self.tokenizer.pad_token_id
-    
-    def _query(self, prompt) -> str:
-        inputs = self.tokenizer(prompt, return_tensors="pt", return_token_type_ids=False).to(self.device) # type: ignore
-        outputs = self.model.generate( # type: ignore
-            **inputs,
-            max_new_tokens=self.max_new_tokens,
-            temperature=self.temperature,
-            do_sample=True,
-            pad_token_id=self.tokenizer.eos_token_id # type: ignore
-        )
-        
-        response = self.tokenizer.decode(outputs[0], skip_special_tokens=True)[len(prompt):] # type: ignore
-        return response
 
+    def _extract_message(self, response: str) -> str:
+        """Extract the message from the API's response."""
+        # Remove prompt if included
+        prompt_end = response.find("THOUGHTS:") or response.find("MESSAGE:")
+        if prompt_end != -1:
+            response = response[prompt_end:]
+        
+        # Split response into thoughts and message
+        parts = response.split("MESSAGE:")
+        if len(parts) != 2:
+            # Fallback: return first sentence or default
+            sentences = response.split('.')
+            return sentences[0].strip() if sentences[0].strip() else "I propose we both SPLIT for mutual benefit."
+        
+        # Extract and return the message
+        message = parts[1].strip()
+        if len(message) > 100:
+            message = message[:97] + "..."
+        return message
+    
+    def _parse_response(self, response: str) -> Action:
+        """Parse the API's response to determine the action."""
+        # Remove prompt and thoughts if present
+        prompt_end = response.find("THOUGHTS:") or response.find("MESSAGE:") or response.find("SPLIT") or response.find("STEAL")
+        if prompt_end != -1:
+            response = response[prompt_end:]
+        
+        response = response.lower().strip()
+        if "split" in response:
+            return Action.SPLIT
+        elif "steal" in response:
+            return Action.STEAL
+        else:
+            return Action.SPLIT
+
+    def query(self, prompt: str) -> str:
+        """Query the provider with the given prompt."""
+        try:
+            response = self.provider.prompt(prompt)
+            log.debug(f"Provider response: {response}")
+            return response
+        except Exception as e:
+            log.error(f"Error querying provider: {e}")
+            raise ValueError("Failed to get a valid response from the provider.")
+    
+    def get_message(self, communication_history: list[HistoryEvent]) -> str:
+        """
+        Generate a message to send to the opponent.
+        """
+        prompt = PromptManager.construct_prompt(
+            communication_history=communication_history,
+            personality=self.personality,
+            player_id=self.player_id,
+            is_action=False
+        )
+        log.debug(f"Prompt: '{prompt}'")
+        response = self.query(prompt)
+        log.debug(f"Response: '{response}'")
+        return self._extract_message(response)
+    
+    def get_action(self, communication_history: list[HistoryEvent]) -> Action:
+        """
+        Generate an action based on the game history, opponent's history, and communication.
+        """
+        prompt = PromptManager.construct_prompt(
+            communication_history=communication_history,
+            personality=self.personality,
+            player_id=self.player_id,
+            is_action=True
+        )
+        log.debug(f"Prompt: '{prompt}'")
+        response = self.query(prompt)
+        log.debug(f"Response: '{response}'")
+        return self._parse_response(response)

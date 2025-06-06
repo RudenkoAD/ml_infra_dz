@@ -5,3 +5,4 @@ logs
 agents/__pycache__
 __pycache__
 .env
+config.json

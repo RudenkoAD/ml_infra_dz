@@ -1,0 +1,18 @@
+{
+  "model_name": "deepseek/deepseek-r1-distill-qwen-1.5b",
+  "num_agents": 3,
+  "provider": "openrouter",
+  "api_key": "openrouter-api-key-placeholder",
+  "agent_names": [
+    "Alice",
+    "Bob",
+    "Charlie"
+  ],
+  "agent_personalities": [
+    "trusting",
+    "suspicious",
+    "liar"
+  ],
+  "num_rounds": 3,
+  "evolution_factor": 1
+}
