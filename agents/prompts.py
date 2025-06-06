@@ -43,7 +43,7 @@ class PromptManager:
         prompt = PromptManager._get_base_prompt()
         prompt += PromptManager._get_personality_prompt(personality)
         prompt += PromptManager._translate_history_to_prompt(player_id, communication_history)
-        prompt += "\nWhat are your thoughts and what message would you like to send to your opponent? Keep your message brief and strategic."
+        prompt += "\nBased on the above communication, What message would you like to send to your opponent? Keep your message brief and strategic. Respond with just the message, without any additional words or explanations."
         return prompt
     
     @staticmethod
@@ -52,7 +52,7 @@ class PromptManager:
         prompt = PromptManager._get_base_prompt()
         prompt += PromptManager._get_personality_prompt(personality)
         prompt += PromptManager._translate_history_to_prompt(player_id, communication_history)
-        prompt += "\nBased on the above communication, what action would you like to take? Choose either SPLIT or STEAL. Answer with just the action name (SPLIT or STEAL), and no other words:"
+        prompt += "\nBased on the above communication, what action would you like to take? Choose either SPLIT or STEAL. Answer with just the action name (SPLIT or STEAL), and no other words."
         return prompt
     
     @staticmethod

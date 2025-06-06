@@ -114,9 +114,8 @@ class SplitOrStealEnv:
         
         # Play multiple rounds
         while self.is_playing():
+            log.info("-------------------------------")
             log.info(f"Starting round {self.state.round_number + 1} of {self.state.total_rounds}")
-            # Increment round number
-            self.state.round_number += 1
             # Reset communication for new round
             self.state.current_turn = 0
             
@@ -125,14 +124,17 @@ class SplitOrStealEnv:
                 # First agent's message
                 message1 = first_agent.get_message(self.state.communication_history)
                 self.add_communication(first_agent.player_id, message1)
-                
+                log.info(f"{first_agent.player_id} sent message: {message1}")
                 # Second agent's message
                 message2 = second_agent.get_message(self.state.communication_history)
                 self.add_communication(second_agent.player_id, message2)
+                log.info(f"{second_agent.player_id} sent message: {message2}")
             
             # Action phase
             action1 = first_agent.get_action(self.state.communication_history)
+            log.info(f"{first_agent.player_id} chose action: {action1}")
             action2 = second_agent.get_action(self.state.communication_history)
+            log.info(f"{second_agent.player_id} chose action: {action2}")
             
             self.add_action(first_agent.player_id, action1)
             self.add_action(second_agent.player_id, action2)
@@ -148,7 +150,7 @@ class SplitOrStealEnv:
             rounds.append(round_result)
             
             log.info(f"Round {self.state.round_number} results: {round_result} history: {self.state.communication_history}")
-        
+        log.info(f"Game {self.state.game_id} completed with total rewards: {total_rewards}")
         # Return final game results
         return GameResult(
             game_id=self.state.game_id,

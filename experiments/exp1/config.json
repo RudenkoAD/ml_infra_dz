@@ -1,0 +1,21 @@
+{
+  "model_name": "deepseek/deepseek-r1-distill-qwen-14b:free",
+  "num_agents": 3,
+  "provider": "openrouter",
+  "api_key": "api_key_placeholder",
+  "agent_names": [
+    "Alice",
+    "Bob",
+    "Charlie"
+  ],
+  "agent_personalities": [
+    "trusting",
+    "suspicious",
+    "liar"
+  ],
+  "log_file": "game_log.log",
+  "num_rounds": 3,
+  "evolution_factor": 1,
+  "seed": 42,
+  "logging_level": "info"
+}

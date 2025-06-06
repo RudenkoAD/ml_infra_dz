@@ -27,38 +27,20 @@ class LLMAgent:
 
     def _extract_message(self, response: str) -> str:
         """Extract the message from the API's response."""
-        # Remove prompt if included
-        prompt_end = response.find("THOUGHTS:") or response.find("MESSAGE:")
-        if prompt_end != -1:
-            response = response[prompt_end:]
-        
-        # Split response into thoughts and message
-        parts = response.split("MESSAGE:")
-        if len(parts) != 2:
-            # Fallback: return first sentence or default
-            sentences = response.split('.')
-            return sentences[0].strip() if sentences[0].strip() else "I propose we both SPLIT for mutual benefit."
-        
-        # Extract and return the message
-        message = parts[1].strip()
-        if len(message) > 100:
-            message = message[:97] + "..."
-        return message
+        return response.strip()
+
     
     def _parse_response(self, response: str) -> Action:
         """Parse the API's response to determine the action."""
-        # Remove prompt and thoughts if present
-        prompt_end = response.find("THOUGHTS:") or response.find("MESSAGE:") or response.find("SPLIT") or response.find("STEAL")
-        if prompt_end != -1:
-            response = response[prompt_end:]
-        
-        response = response.lower().strip()
+        response = response.strip().lower()
         if "split" in response:
             return Action.SPLIT
         elif "steal" in response:
             return Action.STEAL
         else:
-            return Action.SPLIT
+            log.error(f"Invalid action response: '{response}'")
+            raise ValueError("Invalid action response from provider.")
+        
 
     def query(self, prompt: str) -> str:
         """Query the provider with the given prompt."""

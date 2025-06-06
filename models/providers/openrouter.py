@@ -26,8 +26,8 @@ class OpenRouterProvider(Provider):
             model=self.model_name,
             messages=[{"role": "user", "content": prompt}],
             temperature=0.5,
-            max_completion_tokens=4096
-        )
+            max_completion_tokens=25000,
+            )
         log.debug(f"OpenRouter response: {response}")
         if response.choices[0].message.content is None:
             raise ValueError("API response is empty or invalid.")

@@ -11,7 +11,6 @@ from environment import SplitOrStealEnv
 from models.provider_finder import get_provider
 
 import logging
-logging.basicConfig(filename=f'myapp.log', level=logging.DEBUG)
 log = logging.getLogger(__name__)
 
 def load_config(config_path: str) -> dict:
@@ -32,6 +31,11 @@ def main():
     # Load environment variables
     load_dotenv()
     
+    # Load configuration
+    config = load_config("config.json")
+    
+    logging.basicConfig(filename=config["log_file"], level=config.get("log_level", logging.INFO))
+    
     # Initialize wandb
     wandb.init(
         project="split-or-steal-llm",
@@ -47,9 +51,6 @@ def main():
     hf_token = os.getenv("HUGGINGFACE_API_TOKEN")
     if not hf_token:
         raise ValueError("HUGGINGFACE_API_TOKEN environment variable is not set.")
-    
-    # Load configuration
-    config = load_config("config.json")
     
     # create provider
     provider = get_provider(
