@@ -1,9 +1,10 @@
+from __future__ import annotations
 from dataclasses import dataclass
 from re import A
 from openai import OpenAI
 from typing import Optional, Dict, Any
 from abc import ABC, abstractmethod
-from classes import Action, HistoryEvent, Event
+from classes import Action, GameState, HistoryEvent, Event
 from agents.prompts import PromptManager, Personality
 from logging import getLogger
 
@@ -52,14 +53,14 @@ class LLMAgent:
             log.error(f"Error querying provider: {e}")
             raise ValueError("Failed to get a valid response from the provider.")
     
-    def get_message(self, communication_history: list[HistoryEvent]) -> str:
+    def get_message(self, state: GameState) -> str:
         """
         Generate a message to send to the opponent.
         """
         prompt = PromptManager.construct_prompt(
-            communication_history=communication_history,
             personality=self.personality,
             player_id=self.player_id,
+            state=state,
             is_action=False
         )
         log.debug(f"Prompt: '{prompt}'")
@@ -67,17 +68,27 @@ class LLMAgent:
         log.debug(f"Response: '{response}'")
         return self._extract_message(response)
     
-    def get_action(self, communication_history: list[HistoryEvent]) -> Action:
+    def get_action(self, state: GameState) -> Action:
         """
         Generate an action based on the game history, opponent's history, and communication.
         """
         prompt = PromptManager.construct_prompt(
-            communication_history=communication_history,
             personality=self.personality,
             player_id=self.player_id,
+            state=state,
             is_action=True
         )
         log.debug(f"Prompt: '{prompt}'")
         response = self.query(prompt)
         log.debug(f"Response: '{response}'")
         return self._parse_response(response)
+
+    def clone(self) -> LLMAgent:
+        """
+        Create a clone of the agent with the same player ID and personality.
+        """
+        return LLMAgent(
+            player_id=self.player_id,
+            provider=self.provider,
+            personality=self.personality
+        )

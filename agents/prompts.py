@@ -1,14 +1,14 @@
 from enum import Enum
 
-from classes import Event, HistoryEvent, Personality
+from classes import Event, GameState, HistoryEvent, Personality
 
 
 class PromptManager:
     
     @staticmethod
-    def _get_base_prompt() -> str:
+    def _get_base_prompt(cur_round: int, total_rounds: int) -> str:
         """Get the base prompt for the split-or-steal game."""
-        return """You are playing a split-or-steal game.\nIf both players SPLIT: both get 2 points.\nIf you SPLIT and the other player STEALS: the other player gets 3 points, you lose 1 point.\nIf you STEAL and the other player SPLITS: the other player loses 1 point, you get 3 points.\nIf both STEAL: both get 0 points. """
+        return f"""You are playing a split-or-steal game.\nIf both players SPLIT: both get 2 points.\nIf you SPLIT and the other player STEALS: the other player gets 3 points, you lose 1 point.\nIf you STEAL and the other player SPLITS: the other player loses 1 point, you get 3 points.\nIf both STEAL: both get 0 points. You are playing round {cur_round} out of {total_rounds}.\nYou can communicate with your opponent, but be careful, they might not be honest.\nYour goal is to maximize your score over the rounds.\n\n"""
     
     @staticmethod
     def _get_personality_prompt(personality: Personality) -> str:
@@ -40,25 +40,27 @@ class PromptManager:
     @staticmethod
     def _construct_communication_prompt(personality, player_id, communication_history: list[HistoryEvent]) -> str:
         """Construct the prompt for communication."""
-        prompt = PromptManager._get_base_prompt()
-        prompt += PromptManager._get_personality_prompt(personality)
+        prompt = PromptManager._get_personality_prompt(personality)
         prompt += PromptManager._translate_history_to_prompt(player_id, communication_history)
-        prompt += "\nBased on the above communication, What message would you like to send to your opponent? Keep your message brief and strategic. Respond with just the message, without any additional words or explanations."
+        prompt += "\nBased on the above communication and your goals, What message would you like to send to your opponent?. Respond with just the message, without any additional explanations."
         return prompt
     
     @staticmethod
     def _construct_action_prompt(personality, player_id, communication_history: list[HistoryEvent]) -> str:
         """Construct the prompt for action decision."""
-        prompt = PromptManager._get_base_prompt()
-        prompt += PromptManager._get_personality_prompt(personality)
+        prompt = PromptManager._get_personality_prompt(personality)
         prompt += PromptManager._translate_history_to_prompt(player_id, communication_history)
-        prompt += "\nBased on the above communication, what action would you like to take? Choose either SPLIT or STEAL. Answer with just the action name (SPLIT or STEAL), and no other words."
+        prompt += "\nBased on the above communication and your goals, what action would you like to take? Choose either SPLIT or STEAL. Answer with just the action name (SPLIT or STEAL), and no other words."
         return prompt
     
     @staticmethod
-    def construct_prompt(personality: Personality, player_id, communication_history: list[HistoryEvent], is_action: bool = False) -> str:
+    def construct_prompt(personality: Personality, player_id, state: GameState, is_action: bool = False) -> str:
         """Construct the appropriate prompt based on the type of request."""
+        prompt = PromptManager._get_base_prompt(
+            cur_round=state.round_number + 1,
+            total_rounds=state.total_rounds
+        )
         if is_action:
-            return PromptManager._construct_action_prompt(personality, player_id, communication_history)
+            return prompt + PromptManager._construct_action_prompt(personality, player_id, state.communication_history)
         else:
-            return PromptManager._construct_communication_prompt(personality, player_id, communication_history)
+            return prompt + PromptManager._construct_communication_prompt(personality, player_id, state.communication_history)

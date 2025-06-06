@@ -122,18 +122,18 @@ class SplitOrStealEnv:
             # Communication phase
             while self.is_communication():
                 # First agent's message
-                message1 = first_agent.get_message(self.state.communication_history)
+                message1 = first_agent.get_message(self.state)
                 self.add_communication(first_agent.player_id, message1)
                 log.info(f"{first_agent.player_id} sent message: {message1}")
                 # Second agent's message
-                message2 = second_agent.get_message(self.state.communication_history)
+                message2 = second_agent.get_message(self.state)
                 self.add_communication(second_agent.player_id, message2)
                 log.info(f"{second_agent.player_id} sent message: {message2}")
             
             # Action phase
-            action1 = first_agent.get_action(self.state.communication_history)
+            action1 = first_agent.get_action(self.state)
             log.info(f"{first_agent.player_id} chose action: {action1}")
-            action2 = second_agent.get_action(self.state.communication_history)
+            action2 = second_agent.get_action(self.state)
             log.info(f"{second_agent.player_id} chose action: {action2}")
             
             self.add_action(first_agent.player_id, action1)
