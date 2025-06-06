@@ -1,7 +1,0 @@
-{"time":"2025-06-05T16:53:32.598479396+03:00","level":"INFO","msg":"stream: starting","core version":"0.19.11","symlink path":"/home/grimm/Documents/Projects/Python/ml_infra_dz/wandb/run-20250605_165332-blh86cms/logs/debug-core.log"}
-{"time":"2025-06-05T16:53:32.988515261+03:00","level":"INFO","msg":"created new stream","id":"blh86cms"}
-{"time":"2025-06-05T16:53:32.988580143+03:00","level":"INFO","msg":"stream: started","id":"blh86cms"}
-{"time":"2025-06-05T16:53:32.989113732+03:00","level":"INFO","msg":"handler: started","stream_id":"blh86cms"}
-{"time":"2025-06-05T16:53:32.988677433+03:00","level":"INFO","msg":"writer: Do: started","stream_id":"blh86cms"}
-{"time":"2025-06-05T16:53:32.989401898+03:00","level":"INFO","msg":"sender: started","stream_id":"blh86cms"}
-{"time":"2025-06-05T16:53:33.298862043+03:00","level":"INFO","msg":"Starting system monitor"}
