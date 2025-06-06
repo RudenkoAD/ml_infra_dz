@@ -18,15 +18,6 @@ def load_config(config_path: str) -> dict:
     with open(config_path, "r") as f:
         return json.load(f)
 
-def log_agent_performance(agent_id: str, performance: dict, log_directory: str):
-    """Log individual agent performance in its own folder."""
-    agent_folder = os.path.join(log_directory, agent_id)
-    os.makedirs(agent_folder, exist_ok=True)
-    log_file = os.path.join(agent_folder, "performance.log")
-    with open(log_file, "a") as f:
-        for key, value in performance.items():
-            f.write(f"{key}: {value}\n")
-
 def main():
     # Load environment variables
     load_dotenv()
@@ -34,7 +25,14 @@ def main():
     # Load configuration
     config = load_config("config.json")
     
-    logging.basicConfig(filename=config["log_file"], level=config.get("log_level", logging.INFO))
+    #copy config to log folder
+    if not os.path.exists(f"experiments/{config['experiment_name']}"):
+        os.makedirs(f"experiments/{config['experiment_name']}")
+    with open(f"experiments/{config['experiment_name']}/config.json", "w") as f:
+        json.dump(config, f, indent=4)
+    
+    logging.basicConfig(filename=f"experiments/{config["experiment_name"]}/{config["experiment_name"]}.log", level=config.get("log_level", logging.INFO))
+    
     
     # Initialize wandb
     wandb.init(
@@ -79,7 +77,8 @@ def main():
         result = game.simulate_games(
             env=env,
             agents=agents,
-            num_rounds=config["num_rounds"]
+            num_rounds=config["num_rounds"],
+            max_turns=config["max_turns"]
         )
         
         # Log results
@@ -92,7 +91,6 @@ def main():
                 "score": result[agent.player_id],
                 "personality": agent.personality.name
             }
-            log_agent_performance(agent.player_id, performance, config["log_directory"])
 
         # Evolve agents based on scores
         agents = game.evolve_agents(

@@ -21,12 +21,12 @@ def create_agents(provider: Provider, agent_personalities: list[Personality], ag
     log.info(f"Created {len(agents)} agents with personalities: {[agent.personality for agent in agents]}")
     return agents
 
-def simulate_games(env: SplitOrStealEnv, agents: List[LLMAgent], num_rounds: int = 3) -> dict[str, float]:
+def simulate_games(env: SplitOrStealEnv, agents: List[LLMAgent], num_rounds: int = 3, max_turns: int = 4) -> dict[str, float]:
     """Simulate games between all agents."""
     scores = {agent.player_id: 0.0 for agent in agents}
     for i, agent1 in enumerate(agents):
         for j, agent2 in enumerate(agents[i+1:]):
-            game_result = env.play_duel(agent1, agent2, num_rounds)
+            game_result = env.play_duel(agent1, agent2, num_rounds, max_turns=max_turns)
             scores[game_result.first_agent_id] += game_result.total_rewards[0]
             scores[game_result.second_agent_id] += game_result.total_rewards[1]
     return scores

@@ -91,9 +91,9 @@ class SplitOrStealEnv:
         """Get the current game state."""
         return self.state
     
-    def play_duel(self, agent1: LLMAgent, agent2: LLMAgent, num_rounds: int = 1) -> GameResult:
+    def play_duel(self, agent1: LLMAgent, agent2: LLMAgent, num_rounds: int = 1, max_turns: int = 4) -> GameResult:
         """Play multiple rounds between two agents."""
-        self.reset(num_rounds)
+        self.reset(num_rounds, max_turns)
         first_agent, second_agent = (agent1, agent2) if random.random() < 0.5 else (agent2, agent1)
         rounds = []
         total_rewards = [0.0, 0.0]
@@ -126,12 +126,12 @@ class SplitOrStealEnv:
             rounds.append(round_result)
             
             log.info(f"Round {self.state.round_number} results: {round_result} history: {self.state.communication_history}")
-        log.info(f"Game {self.state.game_id} completed with total rewards: {total_rewards}")
+        log.info(f"Game {self.state.game_id} between {first_agent} and {second_agent} completed with total rewards: {total_rewards}")
         return GameResult(
             game_id=self.state.game_id,
             rounds=rounds,
-            first_agent_id=agent1.player_id,
-            second_agent_id=agent2.player_id,
+            first_agent_id=first_agent.player_id,
+            second_agent_id=second_agent.player_id,
             total_rewards=(total_rewards[0], total_rewards[1]),
             communication_history=self.state.communication_history.copy()
         )
