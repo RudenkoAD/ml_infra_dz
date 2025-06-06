@@ -1,0 +1,33 @@
+{
+    "api_keys": {
+        "openrouter": "openrouter_api_key"
+    },
+    "agents": [
+        {
+            "name": "Sus1",
+            "promptset": "TrustPromptSet",
+            "provider": "openrouter",
+            "model": "deepseek/deepseek-chat-v3-0324"
+        },
+        {
+            "name": "Sus2",
+            "promptset": "SusPromptSet",
+            "provider": "openrouter",
+            "model": "deepseek/deepseek-chat-v3-0324"
+        },
+        {
+            "name": "Lie3",
+            "promptset": "LiePromptSet",
+            "provider": "openrouter",
+            "model": "deepseek/deepseek-chat-v3-0324"
+        }
+    ],
+    "experiment_name": "new_config_test",
+    "log_directory": "logs",
+    "num_games": 1,
+    "num_rounds": 3,
+    "max_turns": 4,
+    "evolution_factor": 1,
+    "seed": 42,
+    "logging_level": "info"
+}

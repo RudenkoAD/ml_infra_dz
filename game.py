@@ -1,35 +1,53 @@
+import dataclasses
 from typing import List, Tuple
 import wandb
 from agents.llm_agent import LLMAgent
 from environment import SplitOrStealEnv
-from classes import Personality
 
 from logging import getLogger
+from models.provider_finder import get_provider
 from models.providers.base_provider import Provider
+from promptsets.promptset_finder import get_promptset
+
 log = getLogger(__name__)
 
-def create_agents(provider: Provider, agent_personalities: list[Personality], agent_names: list[str]) -> List:
+def create_agents(agents: List[dict], api_keys: dict) -> List[LLMAgent]:
     """Create a list of agents."""
-    agents = []
-    for i in range(len(agent_names)):
+    created_agents: List[LLMAgent] = []
+    for i in range(len(agents)):
+        provider_name = agents[i]["provider"]
+        api_key = api_keys[provider_name]
+        if api_key is None:
+            raise ValueError(f"api_key for provider {provider_name} not found")
         agent = LLMAgent(
-            player_id=agent_names[i],
-            provider=provider,
-            personality=Personality(agent_personalities[i])
+            player_id=agents[i]["name"],
+            provider=get_provider(
+                provider=provider_name,
+                api_key=api_key,
+                model_name=agents[i]["model"]
+                ),
+            promptset=get_promptset(agents[i]["promptset"])
         )
-        agents.append(agent)
-    log.info(f"Created {len(agents)} agents with personalities: {[agent.personality for agent in agents]}")
-    return agents
+        created_agents.append(agent)
+    log.info(f"Created {len(agents)} agents")
+    return created_agents
 
-def simulate_games(env: SplitOrStealEnv, agents: List[LLMAgent], num_rounds: int = 3, max_turns: int = 4) -> dict[str, float]:
+def simulate_games(env: SplitOrStealEnv, agents: List[LLMAgent], num_rounds: int = 3, max_turns: int = 4) -> Tuple[dict[str, float], wandb.Table]:
     """Simulate games between all agents."""
     scores = {agent.player_id: 0.0 for agent in agents}
+    table = wandb.Table(["player_1", "player_2", "result", "history"])
     for i, agent1 in enumerate(agents):
         for j, agent2 in enumerate(agents[i+1:]):
             game_result = env.play_duel(agent1, agent2, num_rounds, max_turns=max_turns)
             scores[game_result.first_agent_id] += game_result.total_rewards[0]
             scores[game_result.second_agent_id] += game_result.total_rewards[1]
-    return scores
+            table.add_data(
+                game_result.first_agent_id, 
+                game_result.second_agent_id, 
+                f"{game_result.total_rewards[0]} - {game_result.total_rewards[1]}",
+                "\n".join([str(event) for event in game_result.communication_history])
+                )
+    return scores, table
 
 def evolve_agents(agents: List, scores: dict[str, float], a: int) -> List:
     """Delete the worst-performing agents and duplicate the best-performing agents."""
@@ -41,10 +59,4 @@ def evolve_agents(agents: List, scores: dict[str, float], a: int) -> List:
         new_agent = agent.clone()
         new_agents.append(new_agent)
     average_agents = sorted_agents[a:-a]
-    wandb.log({
-        "amount_of_agents": len(agents),
-        "amount_of_trusting_agents": len([agent for agent in agents if agent.personality == Personality.TRUSTING]),
-        "amount_of_suspicious_agents": len([agent for agent in agents if agent.personality == Personality.SUSPICIOUS]),
-        "amount_of_lying_agents": len([agent for agent in agents if agent.personality == Personality.LIAR]),
-    })
     return top_agents + new_agents + average_agents

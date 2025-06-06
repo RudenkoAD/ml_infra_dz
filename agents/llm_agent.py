@@ -1,9 +1,8 @@
 from __future__ import annotations
 import random
 
-from torch import rand
 from classes import Action, GameState
-from agents.prompts import PromptManager, Personality
+from promptsets.base_promptset import BasePromptSet
 from logging import getLogger
 from models.providers.base_provider import Provider
 
@@ -11,23 +10,22 @@ log = getLogger(__name__)
 
 class LLMAgent:
     player_id: str
-    personality: Personality = Personality.TRUSTING
+    promptset: BasePromptSet
 
     def __init__(
         self,
         player_id: str,
         provider: Provider,
-        personality: Personality = Personality.TRUSTING
+        promptset: BasePromptSet
     ):
         self.player_id = player_id
         self.provider = provider
-        self.personality = personality
+        self.promptset = promptset
 
     def _extract_message(self, response: str) -> str:
         """Extract the message from the API's response."""
         return response.strip()
 
-    
     def _parse_response(self, response: str) -> Action:
         """Parse the API's response to determine the action."""
         response = response.strip().lower()
@@ -55,8 +53,7 @@ class LLMAgent:
         while True:
             try:
                 # Construct the prompt for communication
-                prompt = PromptManager.construct_prompt(
-                    personality=self.personality,
+                prompt = self.promptset.construct_prompt(
                     player_id=self.player_id,
                     state=state,
                     is_action=False
@@ -73,8 +70,7 @@ class LLMAgent:
         """Generate an action based on the game history."""
         while True:
             try:
-                prompt = PromptManager.construct_prompt(
-                    personality=self.personality,
+                prompt = self.promptset.construct_prompt(
                     player_id=self.player_id,
                     state=state,
                     is_action=True
@@ -94,5 +90,5 @@ class LLMAgent:
         return LLMAgent(
             player_id=self.player_id + random.randint(1, 10000).__str__(),
             provider=self.provider,
-            personality=self.personality
+            promptset=self.promptset
         )

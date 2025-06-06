@@ -1,0 +1,29 @@
+{
+    "model_name": "deepseek/deepseek-chat-v3-0324",
+    "provider": "openrouter",
+    "api_key": "",
+    "agent_names": [
+        "Sus1",
+        "Sus2",
+        "Sus3",
+        "Trust1",
+        "Trust2",
+        "Liar1"
+    ],
+    "agent_personalities": [
+        "suspicious",
+        "suspicious",
+        "suspicious",
+        "trusting",
+        "trusting",
+        "liar"
+    ],
+    "experiment_name": "LongGames_ManySus",
+    "log_directory": "logs",
+    "num_games": 5,
+    "num_rounds": 5,
+    "max_turns": 4,
+    "evolution_factor": 1,
+    "seed": 42,
+    "logging_level": "info"
+}
