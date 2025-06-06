@@ -126,7 +126,7 @@ class SplitOrStealEnv:
             rounds.append(round_result)
             
             log.info(f"Round {self.state.round_number} results: {round_result} history: {self.state.communication_history}")
-        log.info(f"Game {self.state.game_id} between {first_agent} and {second_agent} completed with total rewards: {total_rewards}")
+        log.info(f"Game {self.state.game_id} between {first_agent.player_id} and {second_agent.player_id} completed with total rewards: {total_rewards}")
         return GameResult(
             game_id=self.state.game_id,
             rounds=rounds,
