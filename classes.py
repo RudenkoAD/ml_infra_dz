@@ -31,13 +31,11 @@ class GameState:
     communication_history: list[HistoryEvent]
     current_turn: int
     max_turns: int
-    game_id: int
     round_number: int
     total_rounds: int
 
 @dataclass
 class RoundResult:
-    game_id: int
     round: int
     actions: Tuple[Action, Action]
     rewards: Tuple[float, float]
@@ -46,7 +44,6 @@ class RoundResult:
 
 @dataclass
 class GameResult:
-    game_id: int
     rounds: List[RoundResult]
     first_agent_id: str
     second_agent_id: str

@@ -16,7 +16,6 @@ class SplitOrStealEnv:
             communication_history=[],
             current_turn=0,
             max_turns=4,
-            game_id=0,
             round_number=0,
             total_rounds=1
         )
@@ -33,7 +32,6 @@ class SplitOrStealEnv:
             communication_history=[],
             current_turn=0,
             max_turns=max_turns,
-            game_id=random.randint(0, 1000000),
             round_number=0,
             total_rounds=total_rounds
         )
@@ -46,7 +44,6 @@ class SplitOrStealEnv:
         
         # Create round result
         round_result = RoundResult(
-            game_id=self.state.game_id,
             round=self.state.round_number,
             actions=(action1, action2),
             rewards=rewards,
@@ -127,9 +124,8 @@ class SplitOrStealEnv:
             
             log.info(f"Round {self.state.round_number} results: {round_result} history: {self.state.communication_history}")
         log.info("-------------------------------")
-        log.info(f"Game {self.state.game_id} between {first_agent.player_id} and {second_agent.player_id} completed with total rewards: {total_rewards}")
+        log.info(f"Game between {first_agent.player_id} and {second_agent.player_id} completed with total rewards: {total_rewards}")
         return GameResult(
-            game_id=self.state.game_id,
             rounds=rounds,
             first_agent_id=first_agent.player_id,
             second_agent_id=second_agent.player_id,

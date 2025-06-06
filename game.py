@@ -52,6 +52,7 @@ def simulate_games(env: SplitOrStealEnv, agents: List[LLMAgent], num_rounds: int
 def evolve_agents(agents: List, scores: dict[str, float], a: int) -> List:
     """Delete the worst-performing agents and duplicate the best-performing agents."""
     sorted_agents = sorted(agents, key=lambda x: scores[x.player_id], reverse=True)
+    log.info("Evolving agents")
     log.info(f"Agents sorted by score: {[agent.player_id for agent in sorted_agents]}")
     top_agents = sorted_agents[:a]
     new_agents = []
