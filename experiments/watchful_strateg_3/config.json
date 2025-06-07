@@ -1,0 +1,50 @@
+{
+    "api_keys": {
+        "openrouter": "openrouter_api_key"
+    },
+    "agents": [
+        {
+            "name": "Watchful1",
+            "promptset": "TitForTatPromptSet",
+            "provider": "openrouter",
+            "model": "deepseek/deepseek-chat-v3-0324"
+        },
+        {
+            "name": "Watchful2",
+            "promptset": "TitForTatPromptSet",
+            "provider": "openrouter",
+            "model": "deepseek/deepseek-chat-v3-0324"
+        },
+        {
+            "name": "Watchful3",
+            "promptset": "TitForTatPromptSet",
+            "provider": "openrouter",
+            "model": "deepseek/deepseek-chat-v3-0324"
+        },
+        {
+            "name": "Liar1",
+            "promptset": "LiePromptSet",
+            "provider": "openrouter",
+            "model": "deepseek/deepseek-chat-v3-0324"
+        },
+        {
+            "name": "Liar2",
+            "promptset": "LiePromptSet",
+            "provider": "openrouter",
+            "model": "deepseek/deepseek-chat-v3-0324"
+        },
+        {
+            "name": "Stateg",
+            "promptset": "CounterStrategistPromptSet",
+            "provider": "openrouter",
+            "model": "deepseek/deepseek-chat-v3-0324"
+        }
+    ],
+    "experiment_name": "watchful_strateg_3",
+    "num_games": 3,
+    "num_rounds": 5,
+    "max_turns": 4,
+    "evolution_factor": 1,
+    "seed": 42,
+    "logging_level": "info"
+}
