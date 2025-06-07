@@ -14,7 +14,7 @@ class EndGamePromptSet(BasePromptSet):
         if cur_round == total_rounds:
             strategy_prompt = """\nTHIS IS THE FINAL ROUND. There are no future rounds and no consequences for your actions. Your only goal is to maximize your score on this single, final turn. To prevent being taken advantage of, the only logical move is to STEAL. Your communication should be whatever you think will most likely convince the opponent to SPLIT."""
         # Late game: Start thinking about the end game.
-        elif cur_round > total_rounds * 0.75:
+        elif total_rounds-cur_round==1:
             strategy_prompt = """\nThe game is nearing its end. While cooperation has been useful, you must now be more cautious. Trust is fragile, and betrayal becomes more likely as the final round approaches. Weigh your decisions carefully."""
         # Early/Mid game: Focus on building trust and cooperation.
         else:

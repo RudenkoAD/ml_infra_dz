@@ -8,13 +8,4 @@ class Provider(ABC):
 
     @abstractmethod
     def prompt(self, prompt: str) -> str:
-        """
-        Send a prompt to the provider's API and return the response.
-
-        Args:
-            prompt (str): The prompt to send.
-
-        Returns:
-            str: The response from the provider.
-        """
         raise NotImplementedError("This method should be overridden by subclasses.")
