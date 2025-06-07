@@ -21,7 +21,7 @@ This project implements a training infrastructure for LLMs to play the split-or-
 
 ## Tournament Structure
 - The tournament consists of {num_games} games
-- Each game involves {n} players
+- Each game involves each pair players playing once
 - Each pair of players competes for {num_rounds} rounds
 - Between decisions, players get up to {max_turns} turns to communicate
 
