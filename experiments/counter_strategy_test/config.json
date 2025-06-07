@@ -1,0 +1,44 @@
+{
+    "api_keys": {
+        "openrouter": "openrouter_api_key"
+    },
+    "agents": [
+        {
+            "name": "Trust",
+            "promptset": "TrustPromptSet",
+            "provider": "openrouter",
+            "model": "deepseek/deepseek-chat-v3-0324"
+        },
+        {
+            "name": "Liar",
+            "promptset": "LiePromptSet",
+            "provider": "openrouter",
+            "model": "deepseek/deepseek-chat-v3-0324"
+        },
+        {
+            "name": "Grudge",
+            "promptset": "GrudgePromptSet",
+            "provider": "openrouter",
+            "model": "deepseek/deepseek-chat-v3-0324"
+        },
+        {
+            "name": "Watchful",
+            "promptset": "TitForTatPromptSet",
+            "provider": "openrouter",
+            "model": "deepseek/deepseek-chat-v3-0324"
+        },
+        {
+            "name": "Stateg",
+            "promptset": "CounterStrategistPromptSet",
+            "provider": "openrouter",
+            "model": "deepseek/deepseek-chat-v3-0324"
+        }
+    ],
+    "experiment_name": "counter_strategy_test",
+    "num_games": 1,
+    "num_rounds": 4,
+    "max_turns": 4,
+    "evolution_factor": 0,
+    "seed": 1,
+    "logging_level": "info"
+}
