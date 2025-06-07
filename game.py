@@ -1,7 +1,9 @@
 import dataclasses
 from typing import List, Tuple
+from unittest import result
 import wandb
 from agents.llm_agent import LLMAgent
+from classes import GameResult
 from environment import SplitOrStealEnv
 
 from logging import getLogger
@@ -32,22 +34,17 @@ def create_agents(agents: List[dict], api_keys: dict) -> List[LLMAgent]:
     log.info(f"Created {len(agents)} agents")
     return created_agents
 
-def simulate_games(env: SplitOrStealEnv, agents: List[LLMAgent], num_rounds: int = 3, max_turns: int = 4) -> Tuple[dict[str, float], wandb.Table]:
+def simulate_games(env: SplitOrStealEnv, agents: List[LLMAgent], num_rounds: int = 3, max_turns: int = 4) -> Tuple[dict[str, float], list[GameResult]]:
     """Simulate games between all agents."""
     scores = {agent.player_id: 0.0 for agent in agents}
-    table = wandb.Table(["player_1", "player_2", "result", "history"])
+    results: list[GameResult] = []
     for i, agent1 in enumerate(agents):
         for j, agent2 in enumerate(agents[i+1:]):
             game_result = env.play_duel(agent1, agent2, num_rounds, max_turns=max_turns)
+            results.append(game_result)
             scores[game_result.first_agent_id] += game_result.total_rewards[0]
             scores[game_result.second_agent_id] += game_result.total_rewards[1]
-            table.add_data(
-                game_result.first_agent_id, 
-                game_result.second_agent_id, 
-                f"{game_result.total_rewards[0]} - {game_result.total_rewards[1]}",
-                "\n".join([str(event) for event in game_result.communication_history])
-                )
-    return scores, table
+    return scores, results
 
 def evolve_agents(agents: List, scores: dict[str, float], a: int) -> List:
     """Delete the worst-performing agents and duplicate the best-performing agents."""

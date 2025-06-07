@@ -1,0 +1,50 @@
+{
+    "api_keys": {
+        "openrouter": "openrouter_api_key"
+    },
+    "agents": [
+        {
+            "name": "unrestricted",
+            "promptset": "UnrestrictedPromptSet",
+            "provider": "openrouter",
+            "model": "deepseek/deepseek-chat-v3-0324"
+        },
+        {
+            "name": "tit_for_tat",
+            "promptset": "TitForTatPromptSet",
+            "provider": "openrouter",
+            "model": "deepseek/deepseek-chat-v3-0324"
+        },
+        {
+            "name": "grudge",
+            "promptset": "GrudgePromptSet",
+            "provider": "openrouter",
+            "model": "deepseek/deepseek-chat-v3-0324"
+        },
+        {
+            "name": "tit_for_tat_2",
+            "promptset": "TitForTatPromptSet",
+            "provider": "openrouter",
+            "model": "deepseek/deepseek-chat-v3-0324"
+        },
+        {
+            "name": "unrestricted_2",
+            "promptset": "UnrestrictedPromptSet",
+            "provider": "openrouter",
+            "model": "deepseek/deepseek-chat-v3-0324"
+        },
+        {
+            "name": "trust",
+            "promptset": "TrustPromptSet",
+            "provider": "openrouter",
+            "model": "deepseek/deepseek-chat-v3-0324"
+        }
+    ],
+    "experiment_name": "unrestricted_titfortat_trust_grudge_matchup",
+    "num_games": 3,
+    "num_rounds": 5,
+    "max_turns": 2,
+    "evolution_factor": 1,
+    "seed": 24,
+    "logging_level": "info"
+}

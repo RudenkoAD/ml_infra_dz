@@ -54,23 +54,33 @@ def main():
     env = SplitOrStealEnv()
     env.reset(total_rounds=config["num_rounds"])
     log.info("Environment initialized with total rounds: %d", config["num_rounds"])
-
-    for _ in tqdm(range(config["num_games"])):
+    table = wandb.Table(["game_number", "player_1", "player_2", "result", "history"])
+    
+    for i in tqdm(range(config["num_games"])):
         # Reset environment for each game
         env.reset(total_rounds=config["num_rounds"])
         
         # Simulate games
-        result, table = game.simulate_games(
+        scores, results = game.simulate_games(
             env=env,
             agents=agents,
             num_rounds=config["num_rounds"],
             max_turns=config["max_turns"]
         )
+        for game_result in results:
+            game_number = i+1
+            table.add_data(
+                game_number,
+                game_result.first_agent_id, 
+                game_result.second_agent_id, 
+                f"{game_result.total_rewards[0]} - {game_result.total_rewards[1]}",
+                "\n".join([str(event) for event in game_result.communication_history])
+                )
         
         # Log results
         dict_to_log = {
-        "game_results": result,
-        "games_table": table,
+        "game_results": scores,
+        "game_table": table,
         }
         amounts_of_sets = defaultdict(int)
         for agent in agents:
@@ -84,10 +94,9 @@ def main():
             # Evolve agents based on scores
             agents = game.evolve_agents(
                 agents=agents,
-                scores=result,
+                scores=scores,
                 a=config["evolution_factor"]
             )
-        
     # Close wandb
     wandb.finish()
 
