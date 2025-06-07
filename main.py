@@ -1,4 +1,5 @@
 from collections import defaultdict
+from typing import Any
 from copy import deepcopy
 import os
 import json
@@ -12,7 +13,7 @@ from environment import SplitOrStealEnv
 import logging
 log = logging.getLogger(__name__)
 
-def load_config(config_path: str) -> dict:
+def load_config(config_path: str) -> dict[str, Any]:
     """Load configuration from a JSON file."""
     with open(config_path, "r") as f:
         return json.load(f)
@@ -68,7 +69,7 @@ def main():
             max_turns=config["max_turns"]
         )
         for game_result in results:
-            table.add_data(
+            table.add_data( # type: ignore
                 game_result.first_agent_id, 
                 game_result.second_agent_id, 
                 f"{game_result.total_rewards[0]} - {game_result.total_rewards[1]}",
@@ -76,11 +77,11 @@ def main():
                 )
         
         # Log results
-        dict_to_log = {
+        dict_to_log: dict[str, Any] = {
         "game_results": scores,
         f"round_{i+1}_table": table,
         }
-        amounts_of_sets = defaultdict(int)
+        amounts_of_sets: defaultdict[str, int] = defaultdict(int)
         for agent in agents:
             amounts_of_sets[f"amount_of_agents_with_{agent.promptset.name}"] +=1
         

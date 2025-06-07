@@ -1,16 +1,16 @@
-from enum import Enum
-from typing import Optional
+from typing import Optional, Type
 
+from models.providers.base_provider import Provider
 from models.providers.huggingface import HuggingFaceProvider
 from models.providers.openrouter import OpenRouterProvider
 
-providers = {
+providers: dict[str, Type[Provider]] = {
     "openrouter": OpenRouterProvider,
     "huggingface": HuggingFaceProvider
 }
     
 
-def get_provider(provider: str, api_key: Optional[str] = None, model_name: str = "deepseek/deepseek-r1-distill-qwen-7b"):
+def get_provider(provider: str, api_key: Optional[str] = None, model_name: str = "deepseek/deepseek-r1-distill-qwen-7b") -> Provider:
     """
     Factory function to get the appropriate provider instance based on the provider name.
     

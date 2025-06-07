@@ -23,7 +23,7 @@ class EndGamePromptSet(BasePromptSet):
         return base_rules + strategy_prompt
 
     @staticmethod
-    def translate_history_to_prompt(player_id, communication_history: list[HistoryEvent]) -> str:
+    def translate_history_to_prompt(player_id: str, communication_history: list[HistoryEvent]) -> str:
         """Translate the communication history into a prompt format."""
         if not communication_history:
             return "\nThis is the first round of the game. You have not communicated with your opponent yet."
@@ -42,21 +42,21 @@ class EndGamePromptSet(BasePromptSet):
         return prompt
 
     @staticmethod
-    def construct_communication_prompt(player_id, communication_history: list[HistoryEvent]) -> str:
+    def construct_communication_prompt(player_id: str, communication_history: list[HistoryEvent]) -> str:
         """Construct the prompt for communication."""
         prompt = EndGamePromptSet.translate_history_to_prompt(player_id, communication_history)
         prompt += "\nBased on the game stage and history, what message would you like to send? Respond with just the message, without any additional explanations."
         return prompt
 
     @staticmethod
-    def construct_action_prompt(player_id, communication_history: list[HistoryEvent]) -> str:
+    def construct_action_prompt(player_id: str, communication_history: list[HistoryEvent]) -> str:
         """Construct the prompt for action decision."""
         prompt = EndGamePromptSet.translate_history_to_prompt(player_id, communication_history)
         prompt += "\nBased on the game stage and history, what action will you take? Choose either SPLIT or STEAL. Answer with just the action name (SPLIT or STEAL), and no other words."
         return prompt
 
     @staticmethod
-    def construct_prompt(player_id, state: GameState, is_action: bool = False) -> str:
+    def construct_prompt(player_id: str, state: GameState, is_action: bool = False) -> str:
         """Construct the appropriate prompt based on the type of request."""
         prompt = EndGamePromptSet.get_base_prompt(
             cur_round=state.round_number + 1,
