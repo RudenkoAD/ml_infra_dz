@@ -1,7 +1,6 @@
-.venv/**
-.vscode/**
-wandb
-logs
-agents/__pycache__
 __pycache__
+wandb
+.vscode
+.venv
 .env
+
