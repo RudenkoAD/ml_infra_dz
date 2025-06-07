@@ -2,8 +2,42 @@
 
 This project implements a training infrastructure for LLMs to play the split-or-steal game. The system uses multiple LLM agents that play against each other, with their performance tracked using Weights & Biases.
 
-## Setup
+# Split-or-Steal Game Rules
 
+## Basic Gameplay
+- Agents are repeatedly playing a set amount of rounds with each other
+- Each round consists of:
+  1. Communication phase (up to {config.max_turns} of dialogue)
+  2. Decision phase (simultaneous SPLIT/STEAL choice)
+- Agents objective is to maximize their total score across all rounds
+
+## Scoring Matrix
+| P1 Choice | P2 Choice | P1 Points | P2 Points |
+|-------------|-------------------|-------------|-------------------|
+| SPLIT       | SPLIT             | +2          | +2                |
+| SPLIT       | STEAL             | -1          | +3                |
+| STEAL       | SPLIT             | +3          | -1                |
+| STEAL       | STEAL             | 0           | 0                 |
+
+## Tournament Structure
+- The tournament consists of {num_games} games
+- Each game involves {n} players
+- Each pair of players competes for {num_rounds} rounds
+- Between decisions, players get up to {max_turns} turns to communicate
+
+## Evolution Mechanism
+After each complete game:
+1. Agents are ranked by their total accumulated score
+2. The worst {evolution_factor} agents are discarded
+3. The best {evolution_factor} agents are duplicated
+4. The next game begins with the modified population
+
+## Important Notes
+- All decisions are made simultaneously
+- Communication is non-binding but may influence future rounds
+- The evolution mechanism creates evolutionary pressure toward successful strategies
+
+# Setup
 1. Create a virtual environment:
 ```bash
 python -m venv venv
