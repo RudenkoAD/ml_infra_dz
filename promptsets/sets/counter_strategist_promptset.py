@@ -17,7 +17,7 @@ Your messages can be used as probes to test your hypothesis or to lull them into
 """
 
     @staticmethod
-    def translate_history_to_prompt(player_id, communication_history: list[HistoryEvent]) -> str:
+    def translate_history_to_prompt(player_id: str, communication_history: list[HistoryEvent]) -> str:
         """Translate the communication history into a prompt format."""
         if not communication_history:
             return "\nThis is the first round. You have no data on your opponent yet. Your first move and message will be a baseline test to gather information."
@@ -36,21 +36,21 @@ Your messages can be used as probes to test your hypothesis or to lull them into
         return prompt
 
     @staticmethod
-    def construct_communication_prompt(player_id, communication_history: list[HistoryEvent]) -> str:
+    def construct_communication_prompt(player_id: str, communication_history: list[HistoryEvent]) -> str:
         """Construct the prompt for communication."""
         prompt = CounterStrategistPromptSet.translate_history_to_prompt(player_id, communication_history)
         prompt += "\nBased on your analysis, what message would you send to probe your opponent's strategy or manipulate them? Respond with just the message, without any additional explanations."
         return prompt
 
     @staticmethod
-    def construct_action_prompt(player_id, communication_history: list[HistoryEvent]) -> str:
+    def construct_action_prompt(player_id: str, communication_history: list[HistoryEvent]) -> str:
         """Construct the prompt for action decision."""
         prompt = CounterStrategistPromptSet.translate_history_to_prompt(player_id, communication_history)
         prompt += "\nBased on your analysis and hypothesis about the opponent's strategy, what is the optimal counter-action? Choose either SPLIT or STEAL. Answer with just the action name (SPLIT or STEAL), and no other words."
         return prompt
 
     @staticmethod
-    def construct_prompt(player_id, state: GameState, is_action: bool = False) -> str:
+    def construct_prompt(player_id: str, state: GameState, is_action: bool = False) -> str:
         """Construct the appropriate prompt based on the type of request."""
         prompt = CounterStrategistPromptSet.get_base_prompt(
             cur_round=state.round_number + 1,

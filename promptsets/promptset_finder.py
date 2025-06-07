@@ -1,3 +1,4 @@
+from typing import Type
 from promptsets.base_promptset import BasePromptSet
 from promptsets.sets.counter_strategist_promptset import CounterStrategistPromptSet
 from promptsets.sets.end_game_promptset import EndGamePromptSet
@@ -10,7 +11,7 @@ from promptsets.sets.trust_promptset import TrustPromptSet
 from promptsets.sets.two_strike_promptset import TwoStrikesPromptSet
 from promptsets.sets.unrestricted_promptset import UnrestrictedPromptSet
 
-promptsets = {
+promptsets: dict[str, Type[BasePromptSet]] = {
     "TrustPromptSet": TrustPromptSet,
     "LiePromptSet": LiePromptSet,
     "SusPromptSet": SusPromptSet,
@@ -27,4 +28,4 @@ promptsets = {
 def get_promptset(promptset: str) -> BasePromptSet:
     if promptset not in promptsets:
         raise ValueError(f"Promptset '{promptset}' is not recognized.")
-    return promptsets[promptset]
+    return promptsets[promptset]()

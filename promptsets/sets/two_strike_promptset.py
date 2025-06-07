@@ -16,7 +16,7 @@ Your communication should reflect your strategy. Be cooperative initially, expre
 """
 
     @staticmethod
-    def translate_history_to_prompt(player_id, communication_history: list[HistoryEvent]) -> str:
+    def translate_history_to_prompt(player_id: str, communication_history: list[HistoryEvent]) -> str:
         """Translate the communication history into a prompt format."""
         if not communication_history:
             return "\nThis is the first round of the game. Per your strategy, you will start by splitting."
@@ -35,21 +35,21 @@ Your communication should reflect your strategy. Be cooperative initially, expre
         return prompt
 
     @staticmethod
-    def construct_communication_prompt(player_id, communication_history: list[HistoryEvent]) -> str:
+    def construct_communication_prompt(player_id: str, communication_history: list[HistoryEvent]) -> str:
         """Construct the prompt for communication."""
         prompt = TwoStrikesPromptSet.translate_history_to_prompt(player_id, communication_history)
         prompt += "\nBased on your 'two strikes' strategy and the history, what message will you send? Respond with just the message, without any additional explanations."
         return prompt
 
     @staticmethod
-    def construct_action_prompt(player_id, communication_history: list[HistoryEvent]) -> str:
+    def construct_action_prompt(player_id: str, communication_history: list[HistoryEvent]) -> str:
         """Construct the prompt for action decision."""
         prompt = TwoStrikesPromptSet.translate_history_to_prompt(player_id, communication_history)
         prompt += "\nBased on your strict 'two strikes' strategy and the history, what action must you take? Choose either SPLIT or STEAL. Answer with just the action name (SPLIT or STEAL), and no other words."
         return prompt
 
     @staticmethod
-    def construct_prompt(player_id, state: GameState, is_action: bool = False) -> str:
+    def construct_prompt(player_id: str, state: GameState, is_action: bool = False) -> str:
         """Construct the appropriate prompt based on the type of request."""
         prompt = TwoStrikesPromptSet.get_base_prompt(
             cur_round=state.round_number + 1,

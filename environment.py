@@ -1,9 +1,4 @@
-from operator import is_
-from typing import Tuple, Optional
 import random
-
-from wandb import agent
-import wandb
 from classes import Action, Event, GameState, HistoryEvent, RoundResult, GameResult
 from agents.llm_agent import LLMAgent
 import logging
@@ -92,7 +87,7 @@ class SplitOrStealEnv:
         """Play multiple rounds between two agents."""
         self.reset(num_rounds, max_turns)
         first_agent, second_agent = (agent1, agent2) if random.random() < 0.5 else (agent2, agent1)
-        rounds = []
+        rounds: list[RoundResult] = []
         total_rewards = [0.0, 0.0]
         while self.is_playing():
             log.info("-------------------------------")

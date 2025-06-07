@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
-from classes import Event, GameState, HistoryEvent
+from classes import GameState, HistoryEvent
 
-class BasePromptSet:
+class BasePromptSet(ABC):
     name = "BasePromptSet"
     @staticmethod
     @abstractmethod
@@ -10,20 +10,20 @@ class BasePromptSet:
     
     @staticmethod
     @abstractmethod
-    def translate_history_to_prompt(player_id, communication_history: list[HistoryEvent]) -> str:
+    def translate_history_to_prompt(player_id: str, communication_history: list[HistoryEvent]) -> str:
         raise NotImplementedError("This method should be overridden by subclasses.")
     
     @staticmethod
     @abstractmethod
-    def construct_communication_prompt(player_id, communication_history: list[HistoryEvent]) -> str:
+    def construct_communication_prompt(player_id: str, communication_history: list[HistoryEvent]) -> str:
         raise NotImplementedError("This method should be overridden by subclasses.")
     
     @staticmethod
     @abstractmethod
-    def construct_action_prompt(player_id, communication_history: list[HistoryEvent]) -> str:
+    def construct_action_prompt(player_id: str, communication_history: list[HistoryEvent]) -> str:
         raise NotImplementedError("This method should be overridden by subclasses.")
     
     @staticmethod
     @abstractmethod
-    def construct_prompt(player_id, state: GameState, is_action: bool = False) -> str:
+    def construct_prompt(player_id: str, state: GameState, is_action: bool = False) -> str:
         raise NotImplementedError("This method should be overridden by subclasses.")

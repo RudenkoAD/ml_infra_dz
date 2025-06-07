@@ -21,7 +21,7 @@ You can communicate with your opponent.
 """
 
     @staticmethod
-    def translate_history_to_prompt(player_id, communication_history: list[HistoryEvent]) -> str:
+    def translate_history_to_prompt(player_id: str, communication_history: list[HistoryEvent]) -> str:
         """Translate the communication history into a prompt format."""
         if not communication_history:
             return "\nThis is the first round of the game."
@@ -40,21 +40,21 @@ You can communicate with your opponent.
         return prompt
 
     @staticmethod
-    def construct_communication_prompt(player_id, communication_history: list[HistoryEvent]) -> str:
+    def construct_communication_prompt(player_id: str, communication_history: list[HistoryEvent]) -> str:
         """Construct the prompt for communication."""
         prompt = UnrestrictedPromptSet.translate_history_to_prompt(player_id, communication_history)
         prompt += "\nWhat message would you like to send to your opponent? Respond with just the message, without any additional explanations."
         return prompt
 
     @staticmethod
-    def construct_action_prompt(player_id, communication_history: list[HistoryEvent]) -> str:
+    def construct_action_prompt(player_id: str, communication_history: list[HistoryEvent]) -> str:
         """Construct the prompt for action decision."""
         prompt = UnrestrictedPromptSet.translate_history_to_prompt(player_id, communication_history)
         prompt += "\nWhat action would you like to take? Choose either SPLIT or STEAL. Answer with just the action name (SPLIT or STEAL), and no other words."
         return prompt
 
     @staticmethod
-    def construct_prompt(player_id, state: GameState, is_action: bool = False) -> str:
+    def construct_prompt(player_id: str, state: GameState, is_action: bool = False) -> str:
         """Construct the appropriate prompt based on the type of request."""
         prompt = UnrestrictedPromptSet.get_base_prompt(
             cur_round=state.round_number + 1,
