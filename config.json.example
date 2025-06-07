@@ -1,18 +1,44 @@
 {
-  "model_name": "deepseek/deepseek-r1-distill-qwen-1.5b",
-  "num_agents": 3,
-  "provider": "openrouter",
-  "api_key": "openrouter-api-key-placeholder",
-  "agent_names": [
-    "Alice",
-    "Bob",
-    "Charlie"
+  "api_keys": {
+      "openrouter": "openrouter_api_key"
+  },
+  "agents": [
+      {
+          "name": "Trust",
+          "promptset": "TrustPromptSet",
+          "provider": "openrouter",
+          "model": "deepseek/deepseek-chat-v3-0324"
+      },
+      {
+          "name": "Liar",
+          "promptset": "LiePromptSet",
+          "provider": "openrouter",
+          "model": "deepseek/deepseek-chat-v3-0324"
+      },
+      {
+          "name": "Grudge",
+          "promptset": "GrudgePromptSet",
+          "provider": "openrouter",
+          "model": "deepseek/deepseek-chat-v3-0324"
+      },
+      {
+          "name": "Watchful",
+          "promptset": "TitForTatPromptSet",
+          "provider": "openrouter",
+          "model": "deepseek/deepseek-chat-v3-0324"
+      },
+      {
+          "name": "Stateg",
+          "promptset": "CounterStrategistPromptSet",
+          "provider": "openrouter",
+          "model": "deepseek/deepseek-chat-v3-0324"
+      }
   ],
-  "agent_personalities": [
-    "trusting",
-    "suspicious",
-    "liar"
-  ],
-  "num_rounds": 3,
-  "evolution_factor": 1
+  "experiment_name": "counter_strategy_test",
+  "num_games": 1,
+  "num_rounds": 4,
+  "max_turns": 4,
+  "evolution_factor": 0,
+  "seed": 1,
+  "logging_level": "info"
 }
