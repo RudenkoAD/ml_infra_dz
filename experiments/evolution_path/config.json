@@ -1,0 +1,56 @@
+{
+    "api_keys": {
+        "openrouter": "openrouter_api_key"
+    },
+    "agents": [
+        {
+            "name": "Trust1",
+            "promptset": "TrustPromptSet",
+            "provider": "openrouter",
+            "model": "deepseek/deepseek-chat-v3-0324"
+        },
+        {
+            "name": "Trust2",
+            "promptset": "TrustPromptSet",
+            "provider": "openrouter",
+            "model": "deepseek/deepseek-chat-v3-0324"
+        },
+        {
+            "name": "Trust3",
+            "promptset": "TrustPromptSet",
+            "provider": "openrouter",
+            "model": "deepseek/deepseek-chat-v3-0324"
+        },
+        {
+            "name": "Trust4",
+            "promptset": "TrustPromptSet",
+            "provider": "openrouter",
+            "model": "deepseek/deepseek-chat-v3-0324"
+        },
+        {
+            "name": "Trust5",
+            "promptset": "TrustPromptSet",
+            "provider": "openrouter",
+            "model": "deepseek/deepseek-chat-v3-0324"
+        },
+        {
+            "name": "Liar1",
+            "promptset": "LiePromptSet",
+            "provider": "openrouter",
+            "model": "deepseek/deepseek-chat-v3-0324"
+        },
+        {
+            "name": "Watchful1",
+            "promptset": "TitForTatPromptSet",
+            "provider": "openrouter",
+            "model": "deepseek/deepseek-chat-v3-0324"
+        }
+    ],
+    "experiment_name": "evolution_path",
+    "num_games": 5,
+    "num_rounds": 4,
+    "max_turns": 2,
+    "evolution_factor": 2,
+    "seed": 1,
+    "logging_level": "info"
+}
