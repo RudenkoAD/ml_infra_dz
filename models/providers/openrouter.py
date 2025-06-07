@@ -1,5 +1,6 @@
 
 import os
+import random
 from typing import Optional
 from openai import OpenAI
 
@@ -16,9 +17,10 @@ class OpenRouterProvider(Provider):
         self.model_name = model_name
         self.client = OpenAI(
             base_url="https://openrouter.ai/api/v1",
-            api_key=self.api_key
+            api_key=self.api_key,
         )
-        log.debug(f"Initialized OpenRouterProvider with model: {self.model_name}")
+        self.seed = random.randint(0, 10000)
+        log.debug(f"Initialized OpenRouterProvider with model: {self.model_name} and seed {self.seed}")
 
     def prompt(self, prompt: str) -> str:
         """Send a prompt to the OpenRouter API and return the response."""
@@ -27,7 +29,9 @@ class OpenRouterProvider(Provider):
             messages=[{"role": "user", "content": prompt}],
             temperature=0.5,
             max_completion_tokens=25000,
+            seed=self.seed
             )
+        log.info("")
         log.debug(f"OpenRouter response: {response}")
         if response.choices[0].message.content is None:
             raise ValueError("API response is empty or invalid.")

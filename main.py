@@ -34,6 +34,9 @@ def main():
         json.dump(config_to_log, f, indent=4)
     logging.basicConfig(filename=f"experiments/{config['experiment_name']}/{config['experiment_name']}.log", level=config.get("log_level", logging.INFO))
     
+    #initialize random
+    random.seed(config["seed"])
+    
     # Initialize wandb
     wandb.init(
         project="split-or-steal-llm",
@@ -76,12 +79,14 @@ def main():
         dict_to_log.update(amounts_of_sets)
         wandb.log(dict_to_log)
 
-        # Evolve agents based on scores
-        agents = game.evolve_agents(
-            agents=agents,
-            scores=result,
-            a=config["evolution_factor"]
-        )
+        
+        if config["evolution_factor"] > 0:
+            # Evolve agents based on scores
+            agents = game.evolve_agents(
+                agents=agents,
+                scores=result,
+                a=config["evolution_factor"]
+            )
         
     # Close wandb
     wandb.finish()
