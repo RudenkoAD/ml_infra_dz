@@ -3,4 +3,4 @@ wandb
 .vscode
 .venv
 .env
-
+/config.json
